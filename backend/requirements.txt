@@ -1,0 +1,14 @@
+alembic==1.16.5
+email-validator==2.3.0
+fastapi==0.118.0
+psycopg[binary]==3.2.10
+pydantic-settings==2.10.1
+PyJWT==2.10.1
+pwdlib[argon2]==0.3.0
+pgvector==0.4.1
+SQLAlchemy==2.0.43
+uvicorn[standard]==0.37.0
+
+# Development and testing
+httpx==0.28.1
+pytest==8.4.2

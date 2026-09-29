@@ -39,11 +39,12 @@
         Image Search
         Multimodal Search
         Filter/Sort Search Results
+        Register
+        Login
 
 ## User
     Full authory Guest +:
     Account:
-        Register
         Login
         Logout
         Personalization
