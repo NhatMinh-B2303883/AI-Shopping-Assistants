@@ -7,7 +7,11 @@ The script is idempotent — running it multiple times will NOT create
 duplicate records (it checks by name/email before inserting).
 """
 
+import os
+import sys
 from decimal import Decimal
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import select
 
