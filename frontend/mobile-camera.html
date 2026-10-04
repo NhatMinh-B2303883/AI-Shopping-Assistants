@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>EAST &amp; SOUL — Chụp Ảnh Bằng Điện Thoại (AI Camera)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #121212;
+      --ink: #ffffff;
+      --muted: #8e8e93;
+      --accent: #38bdf8;
+      --accent-green: #10b981;
+      --font: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* TOP HEADER */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-badge {
+      background: #ffffff;
+      color: #000000;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    .session-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: #e2e8f0;
+    }
+
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulseDot 1.5s infinite;
+    }
+
+    @keyframes pulseDot {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* VIEWFINDER CAMERA AREA */
+    .viewfinder-wrap {
+      flex: 1;
+      position: relative;
+      background: #050505;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #video-stream {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #preview-canvas {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #captured-image-view {
+      display: none;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    /* Target Framing Grid */
+    .camera-frame {
+      position: absolute;
+      width: 80%;
+      height: 70%;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+    }
+
+    .camera-frame .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: #ffffff;
+      border-style: solid;
+    }
+
+    .corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-top-left-radius: 12px; }
+    .corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-top-right-radius: 12px; }
+    .corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-bottom-left-radius: 12px; }
+    .corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-bottom-right-radius: 12px; }
+
+    .crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+    .crosshair::before, .crosshair::after {
+      content: '';
+      position: absolute;
+      background: #ffffff;
+    }
+    .crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+    .crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+    .camera-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* BOTTOM CONTROLS (Shutter Bar) */
+    .controls-bar {
+      padding: 20px 24px calc(20px + env(safe-area-inset-bottom, 12px));
+      background: #000000;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 20;
+    }
+
+    /* Quick Preset chips */
+    .preset-chips-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .preset-chip-btn {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .preset-chip-btn:active {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .shutter-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .side-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .side-btn:active {
+      transform: scale(0.92);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Big Tactile Shutter Button */
+    .shutter-outer {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3.5px solid #ffffff;
+      padding: 4px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .shutter-inner {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .shutter-outer:active .shutter-inner {
+      transform: scale(0.85);
+      background: #e2e8f0;
+    }
+
+    /* PHOTO REVIEW OVERLAY */
+    .review-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+    }
+
+    .review-top {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .review-img-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .review-img-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      object-fit: contain;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .review-bottom {
+      padding: 20px 24px calc(24px + env(safe-area-inset-bottom, 12px));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #0a0a0a;
+    }
+
+    .btn {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-send {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .btn-send:active {
+      background: #e2e8f0;
+    }
+
+    .btn-retake {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    /* SUCCESS SCREEN */
+    .success-screen {
+      position: absolute;
+      inset: 0;
+      background: #09090b;
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .success-icon-wrap {
+      width: 72px;
+      height: 72px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid var(--accent-green);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--accent-green);
+      margin-bottom: 20px;
+      animation: popCheck 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popCheck {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-screen h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .success-screen p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 320px;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="brand">
+      <span class="brand-badge">E&amp;S</span>
+      <span>AI CAMERA</span>
+    </div>
+    <div class="session-badge">
+      <span class="dot-live"></span>
+      <span id="session-display">Đã kết nối</span>
+    </div>
+  </header>
+
+  <!-- CAMERA VIEWFINDER -->
+  <main class="viewfinder-wrap">
+    <video id="video-stream" autoplay playsinline muted></video>
+    <canvas id="preview-canvas"></canvas>
+
+    <!-- Framing guide -->
+    <div class="camera-frame">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <div class="crosshair"></div>
+    </div>
+
+    <div class="camera-hint">Căn chỉnh trang phục vào giữa khung hình</div>
+  </main>
+
+  <!-- CONTROLS & SHUTTER -->
+  <footer class="controls-bar">
+    <!-- Preset chips -->
+    <div class="preset-chips-row">
+      <button class="preset-chip-btn" onclick="snapSamplePreset('ao')">📸 Chụp thử Áo polo</button>
+      <button class="preset-chip-btn" onclick="snapSamplePreset('quan')">📸 Chụp thử Quần jeans</button>
+      <button class="preset-chip-btn" onclick="snapSamplePreset('giay')">📸 Chụp thử Sneaker</button>
+    </div>
+
+    <div class="shutter-row">
+      <!-- Native camera / gallery fallback button -->
+      <label class="side-btn" title="Chọn ảnh từ máy">
+        <input type="file" accept="image/*" capture="environment" hidden onchange="handleNativeFile(event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+      </label>
+
+      <!-- Main Shutter Button -->
+      <div class="shutter-outer" onclick="takeSnapshot()">
+        <div class="shutter-inner"></div>
+      </div>
+
+      <!-- Flip camera button -->
+      <button class="side-btn" onclick="switchCameraFacing()" title="Đổi camera">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 16v5h-5"></path>
+          <path d="M4 8V3h5"></path>
+          <path d="M20 8A9 9 0 0 0 4.5 4.5L4 8"></path>
+          <path d="M4 16a9 9 0 0 0 15.5 3.5l.5-3.5"></path>
+        </svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- REVIEW OVERLAY -->
+  <div class="review-overlay" id="review-overlay">
+    <div class="review-top">
+      <strong>Xác nhận ảnh chụp</strong>
+      <span style="font-size: 0.8rem; color: #94a3b8;">Sẵn sàng phân tích AI</span>
+    </div>
+    <div class="review-img-wrap">
+      <img id="review-img" src="" alt="Ảnh chụp">
+    </div>
+    <div class="review-bottom">
+      <button class="btn btn-send" onclick="sendPhotoToDesktop()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+        Gửi ảnh lên màn hình máy tính
+      </button>
+      <button class="btn btn-retake" onclick="retakePhoto()">
+        Chụp lại
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS NOTIFICATION SCREEN -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon-wrap">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h2>Đã gửi ảnh thành công!</h2>
+    <p>Màn hình máy tính đang phân tích đặc trưng ảnh và hiển thị các sản phẩm thời trang tương đồng.</p>
+    <button class="btn btn-send" onclick="retakePhoto()">
+      Chụp thêm ảnh khác
+    </button>
+  </div>
+
+  <script>
+    // Lấy Session ID từ URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session") || "default_session";
+    document.getElementById("session-display").textContent = "ID: " + sessionId.slice(-6);
+
+    let currentStream = null;
+    let currentFacingMode = "environment";
+    let capturedDataUrl = "";
+    let detectedCategory = "ao";
+
+    // Khởi tạo camera
+    window.addEventListener("DOMContentLoaded", () => {
+      startCamera();
+    });
+
+    async function startCamera() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+      }
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showCameraWarning("Trình duyệt di động yêu cầu kết nối HTTPS để mở Live Stream Camera. Bạn có thể nhấn nút 'Chụp/Tải ảnh' bên dưới hoặc chọn nút 'Chụp thử mẫu'!");
+          return;
+        }
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 1280 } },
+          audio: false
+        });
+        const video = document.getElementById("video-stream");
+        video.srcObject = currentStream;
+      } catch (err) {
+        console.warn("Không mở được camera trực tiếp:", err);
+        showCameraWarning("Không thể tự động bật camera. Hãy nhấn nút biểu tượng Thư viện/Camera bên dưới để chụp ảnh!");
+      }
+    }
+
+    function showCameraWarning(msg) {
+      const hint = document.querySelector(".camera-hint");
+      if (hint) {
+        hint.style.background = "rgba(225, 29, 72, 0.9)";
+        hint.style.color = "#ffffff";
+        hint.textContent = msg;
+      }
+    }
+
+    function switchCameraFacing() {
+      currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+      startCamera();
+    }
+
+    // Chụp ảnh từ camera stream
+    function takeSnapshot() {
+      const video = document.getElementById("video-stream");
+      const canvas = document.getElementById("preview-canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 640;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      capturedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      showReview(capturedDataUrl, "ao");
+    }
+
+    // Xử lý tệp tải lên từ camera gốc của máy
+    function handleNativeFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        capturedDataUrl = evt.target.result;
+        let cat = "ao";
+        const fn = file.name.toLowerCase();
+        if (/shoe|giay|sneaker/.test(fn)) cat = "giay";
+        else if (/pant|quan|jean/.test(fn)) cat = "quan";
+        showReview(capturedDataUrl, cat);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Chụp thử preset mẫu
+    function snapSamplePreset(cat) {
+      detectedCategory = cat;
+      const presets = {
+        ao: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=700&q=80",
+        quan: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=700&q=80",
+        giay: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80"
+      };
+      capturedDataUrl = presets[cat] || presets.ao;
+      showReview(capturedDataUrl, cat);
+    }
+
+    function showReview(imgSrc, cat) {
+      detectedCategory = cat || "ao";
+      document.getElementById("review-img").src = imgSrc;
+      document.getElementById("review-overlay").style.display = "flex";
+    }
+
+    function retakePhoto() {
+      document.getElementById("review-overlay").style.display = "none";
+      document.getElementById("success-screen").style.display = "none";
+    }
+
+    // Gửi ảnh chụp lên desktop qua BroadcastChannel + localStorage
+    function sendPhotoToDesktop() {
+      const payload = {
+        sessionId: sessionId,
+        image: capturedDataUrl,
+        category: detectedCategory,
+        timestamp: Date.now()
+      };
+
+      // 1. BroadcastChannel
+      try {
+        const bc = new BroadcastChannel("es_camera_sync");
+        bc.postMessage(payload);
+      } catch (e) {}
+
+      // 2. LocalStorage event
+      try {
+        localStorage.setItem("es_mobile_upload_" + sessionId, JSON.stringify(payload));
+        localStorage.setItem("es_mobile_latest_event", JSON.stringify(payload));
+      } catch (e) {}
+
+      // Hiển thị màn hình thành công
+      document.getElementById("review-overlay").style.display = "none";
+      document.getElementById("success-screen").style.display = "flex";
+    }
+  </script>
+</body>
+
+</html>
