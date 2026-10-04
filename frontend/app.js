@@ -3,199 +3,409 @@
  * Hỗ trợ tìm kiếm đa phương thức: Từ khóa, Ảnh AI, Quét mã QR
  */
 
-// ── Dữ liệu 12 sản phẩm danh mục ──
+// ── Dữ liệu 23 sản phẩm đồng bộ từ backend/scripts/seed.py ──
 const PRODUCTS = [
+  // ── Sneakers ────────────────────────────────────────────────────────────
   {
-    id: "ao-1",
-    code: "PROD-ao-1",
-    category: "ao",
-    label: "Áo polo",
-    name: "Áo polo Excool thoáng khí",
-    price: 299000,
-    oldPrice: 350000,
-    tag: "Bán chạy",
-    colors: ["#2d3748", "#1a202c", "#ffffff"],
-    colorNames: ["Xanh đen", "Đen tuyền", "Trắng"],
-    image: "1618354691373-d851c5c3a990",
-    description: "Sợi Excool siêu nhẹ, thoát ẩm tức thì, co giãn 4 chiều cho ngày dài hoạt động năng động.",
-    rating: 4.9,
-    reviews: 142
-  },
-  {
-    id: "ao-2",
-    code: "PROD-ao-2",
-    category: "ao",
-    label: "Áo thun",
-    name: "Áo thun cotton compact chống co rút",
-    price: 199000,
-    oldPrice: 249000,
-    tag: "Mới",
-    colors: ["#ffffff", "#64748b", "#0f172a"],
-    colorNames: ["Trắng tinh", "Xám ghi", "Xanh navy"],
-    image: "1521572267360-ee0c2909d518",
-    description: "Cotton chải kỹ 220gsm dày dặn đứng form, công nghệ wash mềm chống xù lông tuyệt đối.",
+    id: "giay-1",
+    code: "SEED-SHOES-01",
+    category: "giay",
+    subCategory: "Sneakers",
+    label: "Sneaker",
+    name: "Urban Runner X1",
+    price: 850000,
+    oldPrice: 1050000,
+    tag: "Hot",
+    colors: ["#e0e0e0", "#ffffff"],
+    colorNames: ["Trắng xám", "Trắng"],
+    image: "1549298916-b41d501d3772",
+    description: "Giày sneaker cổ thấp thiết kế tối giản, đế cao su chống trượt, thích hợp đi phố hàng ngày.",
     rating: 4.8,
-    reviews: 86
+    reviews: 124
   },
   {
-    id: "ao-3",
-    code: "PROD-ao-3",
-    category: "ao",
-    label: "Áo hoodie",
-    name: "Áo hoodie nỉ bông giữ nhiệt",
-    price: 590000,
-    oldPrice: 690000,
-    tag: "Thu đông",
-    colors: ["#9ca3af", "#111827", "#1e3a8a"],
-    colorNames: ["Xám tiêu", "Đen", "Xanh chàm"],
-    image: "1556905055-8f358a7a47b2",
-    description: "Nỉ bông 360gsm cào mịn bên trong, mũ hai lớp đứng form, túi kangaroo rộng rãi tiện ích.",
+    id: "giay-2",
+    code: "SEED-SHOES-02",
+    category: "giay",
+    subCategory: "Sneakers",
+    label: "Sneaker",
+    name: "Street Classic Pro",
+    price: 1200000,
+    oldPrice: 1450000,
+    tag: "Bán chạy",
+    colors: ["#212121", "#424242"],
+    colorNames: ["Đen nhám", "Xám đen"],
+    image: "1525966222134-fcfa99b8ae77",
+    description: "Sneaker phong cách retro với phần upper bằng da tổng hợp cao cấp và đệm lót êm ái.",
+    rating: 4.9,
+    reviews: 89
+  },
+  {
+    id: "giay-3",
+    code: "SEED-SHOES-03",
+    category: "giay",
+    subCategory: "Sneakers",
+    label: "Sneaker",
+    name: "Neon Kick 2.0",
+    price: 750000,
+    oldPrice: 890000,
+    tag: "Mới",
+    colors: ["#f48fb1", "#ffffff"],
+    colorNames: ["Hồng neon", "Trắng"],
+    image: "1595950653106-6c9ebd614d3a",
+    description: "Sneaker nổi bật với phối màu neon, thiết kế trẻ trung năng động.",
+    rating: 4.7,
+    reviews: 56
+  },
+  {
+    id: "giay-4",
+    code: "SEED-SHOES-04",
+    category: "giay",
+    subCategory: "Sneakers",
+    label: "Sneaker",
+    name: "Canvas Low Top",
+    price: 550000,
+    oldPrice: 650000,
+    tag: "",
+    colors: ["#1a237e", "#ffffff"],
+    colorNames: ["Xanh navy", "Trắng"],
+    image: "1607522370275-f14206abe5d3",
+    description: "Giày vải canvas mềm nhẹ, thoáng khí, phù hợp mùa hè.",
+    rating: 4.6,
+    reviews: 42
+  },
+  {
+    id: "giay-5",
+    code: "SEED-SHOES-05",
+    category: "giay",
+    subCategory: "Sneakers",
+    label: "Sneaker",
+    name: "Monochrome Edge",
+    price: 980000,
+    oldPrice: 1150000,
+    tag: "Xu hướng",
+    colors: ["#fafafa", "#e0e0e0"],
+    colorNames: ["Trắng đơn sắc", "Ghi sáng"],
+    image: "1560769629-975ec94e6a86",
+    description: "Sneaker toàn trắng đơn sắc, dễ phối đồ với mọi outfit.",
+    rating: 4.9,
+    reviews: 178
+  },
+
+  // ── Running Shoes ────────────────────────────────────────────────────────
+  {
+    id: "giay-6",
+    code: "SEED-SHOES-06",
+    category: "giay",
+    subCategory: "Running Shoes",
+    label: "Giày chạy bộ",
+    name: "AeroStride 500",
+    price: 1850000,
+    oldPrice: 2150000,
+    tag: "Cao cấp",
+    colors: ["#1565c0", "#0d47a1"],
+    colorNames: ["Xanh dương", "Xanh sẫm"],
+    image: "1542291026-7eec264c27ff",
+    description: "Giày chạy bộ với công nghệ đệm khí, hỗ trợ vòm chân, lý tưởng cho cự ly dài.",
     rating: 4.9,
     reviews: 210
   },
   {
-    id: "ao-4",
-    code: "PROD-ao-4",
-    category: "ao",
-    label: "Áo sơ mi",
-    name: "Áo sơ mi dài tay chống nhăn",
-    price: 399000,
-    oldPrice: 480000,
-    tag: "",
-    colors: ["#ffffff", "#93c5fd", "#1f2937"],
-    colorNames: ["Trắng", "Xanh phấn", "Xám than"],
-    image: "1602810318383-e386cc2a3ccf",
-    description: "Chất liệu sợi tre Bamboo pha spandex tự nhiên, thoáng mát, giữ form phẳng phiu cả ngày.",
-    rating: 4.7,
-    reviews: 54
-  },
-  {
-    id: "quan-1",
-    code: "PROD-quan-1",
-    category: "quan",
-    label: "Quần dài",
-    name: "Quần dài co giãn 4 chiều Daily Pants",
-    price: 449000,
-    oldPrice: 520000,
-    tag: "Hot",
-    colors: ["#1f2937", "#374151", "#78716c"],
-    colorNames: ["Đen nhám", "Xám đậm", "Kaki sáng"],
-    image: "1624378439575-d8705ad7ae80",
-    description: "Phom suông hiện đại tôn dáng, cạp chun ẩn co giãn linh hoạt, thanh lịch cả đi làm lẫn đi chơi.",
-    rating: 4.9,
-    reviews: 175
-  },
-  {
-    id: "quan-2",
-    code: "PROD-quan-2",
-    category: "quan",
-    label: "Quần jeans",
-    name: "Quần jeans slim-fit xanh chàm",
-    price: 550000,
-    oldPrice: 650000,
-    tag: "Bán chạy",
-    colors: ["#1e3a8a", "#0f172a"],
-    colorNames: ["Xanh chàm wash", "Đen chàm"],
-    image: "1541099649105-f69ad21f3246",
-    description: "Denim 12oz dệt chéo bền bỉ pha 2% spandex, wash enzyme tự nhiên bền màu sau nhiều lần giặt.",
-    rating: 4.8,
-    reviews: 120
-  },
-  {
-    id: "quan-3",
-    code: "PROD-quan-3",
-    category: "quan",
-    label: "Quần short",
-    name: "Quần short thể thao hai lớp Running",
-    price: 249000,
-    oldPrice: 299000,
-    tag: "Xuân hè",
-    colors: ["#111827", "#1e3a8a", "#059669"],
-    colorNames: ["Đen", "Xanh navy", "Xanh lục"],
-    image: "1591195853828-11db59a44f6b",
-    description: "Lớp lót co giãn ôm sát cơ bắp, túi sau có khóa zip bảo vệ điện thoại khi chạy bộ.",
-    rating: 4.7,
-    reviews: 93
-  },
-  {
-    id: "quan-4",
-    code: "PROD-quan-4",
-    category: "quan",
-    label: "Quần jogger",
-    name: "Quần jogger nỉ thu đông Minimalist",
-    price: 420000,
-    oldPrice: 490000,
-    tag: "Thu đông",
-    colors: ["#374151", "#111827"],
-    colorNames: ["Ghi xám", "Đen tuyền"],
-    image: "1506629082955-511b1aa562c8",
-    description: "Bo gấu thun co giãn nhẹ, vải nỉ da cá êm mềm, giữ nhiệt ấm áp trong những ngày se lạnh.",
-    rating: 4.8,
-    reviews: 64
-  },
-  {
-    id: "giay-1",
-    code: "PROD-giay-1",
+    id: "giay-7",
+    code: "SEED-SHOES-07",
     category: "giay",
-    label: "Sneaker",
-    name: "Giày sneaker da trắng tối giản Clean Court",
-    price: 890000,
-    oldPrice: 1100000,
-    tag: "Hot",
-    colors: ["#ffffff", "#f3f4f6"],
-    colorNames: ["Trắng viền kem", "Trắng tinh"],
-    image: "1549298916-b41d501d3772",
-    description: "Chất liệu da Nappa mềm cao cấp, lót trong êm ái, đế cao su khâu viền chắc chắn chống trượt.",
+    subCategory: "Running Shoes",
+    label: "Giày chạy bộ",
+    name: "FlexRun Lite",
+    price: 1350000,
+    oldPrice: 1590000,
+    tag: "",
+    colors: ["#ff7043", "#ffffff"],
+    colorNames: ["Cam san hô", "Trắng"],
+    image: "1584735935682-2f2b69dff9d2",
+    description: "Giày chạy siêu nhẹ với đế Phylon linh hoạt, phù hợp tập gym và chạy ngắn.",
+    rating: 4.8,
+    reviews: 95
+  },
+  {
+    id: "giay-8",
+    code: "SEED-SHOES-08",
+    category: "giay",
+    subCategory: "Running Shoes",
+    label: "Giày chạy bộ",
+    name: "TrailBlazer Pro",
+    price: 2100000,
+    oldPrice: 2450000,
+    tag: "Chống nước",
+    colors: ["#757575", "#424242"],
+    colorNames: ["Xám xi măng", "Đen"],
+    image: "1551107696-a4b0c5a0d9a2",
+    description: "Giày chạy địa hình với đế bám tốt, chống nước nhẹ, phù hợp chạy trail.",
+    rating: 4.9,
+    reviews: 134
+  },
+  {
+    id: "giay-9",
+    code: "SEED-SHOES-09",
+    category: "giay",
+    subCategory: "Running Shoes",
+    label: "Giày chạy bộ",
+    name: "SpeedForm Elite",
+    price: 3200000,
+    oldPrice: 3800000,
+    tag: "Flagship",
+    colors: ["#f9a825", "#212121"],
+    colorNames: ["Vàng dạ quang", "Đen"],
+    image: "1539185441755-769473a23570",
+    description: "Giày thi đấu tốc độ cao với carbon plate và đệm foam phản lực.",
     rating: 5.0,
     reviews: 312
   },
+
+  // ── Sandals ──────────────────────────────────────────────────────────────
   {
-    id: "giay-2",
-    code: "PROD-giay-2",
+    id: "giay-10",
+    code: "SEED-SHOES-10",
     category: "giay",
-    label: "Sneaker",
-    name: "Sneaker cổ thấp phong cách Retro 90s",
-    price: 950000,
-    oldPrice: 1200000,
-    tag: "Mới",
-    colors: ["#111827", "#d1d5db"],
-    colorNames: ["Phối đen xám", "Trắng xám"],
-    image: "1525966222134-fcfa99b8ae77",
-    description: "Cảm hứng đường phố thập niên 90, phối màu tương phản sắc nét, đế đệm giảm chấn di chuyển êm dịu.",
-    rating: 4.8,
-    reviews: 98
+    subCategory: "Sandals",
+    label: "Dép & Sandal",
+    name: "Summer Slide Basic",
+    price: 250000,
+    oldPrice: 320000,
+    tag: "Giá tốt",
+    colors: ["#d7ccc8", "#8d6e63"],
+    colorNames: ["Kem be", "Nâu nhạt"],
+    image: "1562183241-b937e95585b6",
+    description: "Dép xăng đan đế EVA nhẹ, quai ngang đơn giản, thoải mái cho mùa hè.",
+    rating: 4.5,
+    reviews: 68
   },
   {
-    id: "giay-3",
-    code: "PROD-giay-3",
+    id: "giay-11",
+    code: "SEED-SHOES-11",
     category: "giay",
-    label: "Giày chạy bộ",
-    name: "Giày chạy bộ siêu nhẹ Air-Stride Pro",
-    price: 1350000,
-    oldPrice: 1650000,
-    tag: "Xuân hè",
-    colors: ["#dc2626", "#1e3a8a", "#000000"],
-    colorNames: ["Đỏ cam", "Xanh cobalt", "Đen tuyền"],
-    image: "1542291026-7eec264c27ff",
-    description: "Đế đệm bọt khí phản hồi năng lượng cao, thân vải dệt nguyên khối thoáng khí cho cự ly 10–21 km.",
-    rating: 4.9,
+    subCategory: "Sandals",
+    label: "Dép & Sandal",
+    name: "Sport Sandal Active",
+    price: 480000,
+    oldPrice: 580000,
+    tag: "",
+    colors: ["#6d4c41", "#3e2723"],
+    colorNames: ["Nâu đất", "Đen đất"],
+    image: "1603808033192-082d6919d3e1",
+    description: "Dép thể thao với quai velcro điều chỉnh được, đế chống trượt, đi biển hoặc trekking nhẹ.",
+    rating: 4.7,
+    reviews: 51
+  },
+
+  // ── T-Shirt ──────────────────────────────────────────────────────────────
+  {
+    id: "ao-1",
+    code: "SEED-CLOTH-01",
+    category: "ao",
+    subCategory: "T-Shirt",
+    label: "Áo thun",
+    name: "Essential Tee White",
+    price: 199000,
+    oldPrice: 250000,
+    tag: "Basic",
+    colors: ["#fafafa", "#e0e0e0"],
+    colorNames: ["Trắng tinh", "Ghi nhạt"],
+    image: "1521572267360-ee0c2909d518",
+    description: "Áo thun basic cổ tròn 100% cotton, thoáng mát, form regular fit phù hợp mọi vóc dáng.",
+    rating: 4.8,
     reviews: 245
   },
   {
-    id: "giay-4",
-    code: "PROD-giay-4",
-    category: "giay",
-    label: "Sandal",
-    name: "Sandal quai chéo EVA Feather Light",
+    id: "ao-2",
+    code: "SEED-CLOTH-02",
+    category: "ao",
+    subCategory: "T-Shirt",
+    label: "Áo thun",
+    name: "Graphic Print Tee",
+    price: 320000,
+    oldPrice: 390000,
+    tag: "Streetwear",
+    colors: ["#212121", "#424242"],
+    colorNames: ["Đen hoạ tiết", "Ghi sẫm"],
+    image: "1618354691373-d851c5c3a990",
+    description: "Áo thun in họa tiết streetwear, chất liệu cotton blend 65/35 co giãn nhẹ.",
+    rating: 4.7,
+    reviews: 112
+  },
+  {
+    id: "ao-3",
+    code: "SEED-CLOTH-03",
+    category: "ao",
+    subCategory: "T-Shirt",
+    label: "Áo thun",
+    name: "Cropped Pastel Tee",
+    price: 280000,
+    oldPrice: 340000,
+    tag: "",
+    colors: ["#ce93d8", "#ffffff"],
+    colorNames: ["Tím pastel", "Trắng"],
+    image: "1583743814966-8936f5b7be1a",
+    description: "Áo thun ngắn tay crop top màu pastel, form dáng năng động trẻ trung.",
+    rating: 4.6,
+    reviews: 73
+  },
+  {
+    id: "ao-4",
+    code: "SEED-CLOTH-04",
+    category: "ao",
+    subCategory: "T-Shirt",
+    label: "Áo thun",
+    name: "Oversized Drop Shoulder",
     price: 350000,
     oldPrice: 420000,
+    tag: "Form rộng",
+    colors: ["#9e9e9e", "#616161"],
+    colorNames: ["Xám tiêu", "Xám đậm"],
+    image: "1503342217505-b0a15ec3261c",
+    description: "Áo thun tay lỡ form rộng phong cách unisex, vải cotton dày dặn.",
+    rating: 4.8,
+    reviews: 164
+  },
+  {
+    id: "ao-5",
+    code: "SEED-CLOTH-05",
+    category: "ao",
+    subCategory: "T-Shirt",
+    label: "Áo thun",
+    name: "Striped Nautical Tee",
+    price: 260000,
+    oldPrice: 320000,
     tag: "",
-    colors: ["#78716c", "#1f2937"],
-    colorNames: ["Nâu đất", "Đen"],
-    image: "1562183241-b937e95585b6",
-    description: "Đúc nguyên khối từ nhựa EVA siêu nhẹ không thấm nước, quai ôm êm ái linh hoạt khi đi mưa và dạo phố.",
-    rating: 4.6,
-    reviews: 42
+    colors: ["#283593", "#ffffff"],
+    colorNames: ["Xanh sọc trắng", "Trắng sọc xanh"],
+    image: "1523381210434-271e8be1f52b",
+    description: "Áo thun kẻ sọc phong cách hải quân, co dãn 4 chiều, mặc thoải mái cả ngày.",
+    rating: 4.7,
+    reviews: 88
+  },
+
+  // ── Hoodie ───────────────────────────────────────────────────────────────
+  {
+    id: "ao-6",
+    code: "SEED-CLOTH-06",
+    category: "ao",
+    subCategory: "Hoodie",
+    label: "Áo Hoodie",
+    name: "Classic Pullover Hoodie",
+    price: 680000,
+    oldPrice: 820000,
+    tag: "Bán chạy",
+    colors: ["#bdbdbd", "#424242"],
+    colorNames: ["Xám nỉ", "Đen"],
+    image: "1556905055-8f358a7a47b2",
+    description: "Áo hoodie chui đầu chất nỉ bông dày ấm, túi kangaroo, dây rút mũ điều chỉnh.",
+    rating: 4.9,
+    reviews: 215
+  },
+  {
+    id: "ao-7",
+    code: "SEED-CLOTH-07",
+    category: "ao",
+    subCategory: "Hoodie",
+    label: "Áo Hoodie",
+    name: "Zip-Up Tech Fleece",
+    price: 950000,
+    oldPrice: 1150000,
+    tag: "Tech Fleece",
+    colors: ["#1a237e", "#000000"],
+    colorNames: ["Xanh navy", "Đen"],
+    image: "1578587018452-892bacefd3f2",
+    description: "Áo hoodie kéo khóa chất liệu tech fleece cao cấp, giữ ấm tốt và thoáng khí.",
+    rating: 4.9,
+    reviews: 142
+  },
+  {
+    id: "ao-8",
+    code: "SEED-CLOTH-08",
+    category: "ao",
+    subCategory: "Hoodie",
+    label: "Áo Hoodie",
+    name: "Pastel Oversized Hoodie",
+    price: 720000,
+    oldPrice: 860000,
+    tag: "",
+    colors: ["#f8bbd0", "#ffffff"],
+    colorNames: ["Hồng phấn", "Trắng kem"],
+    image: "1509967419530-da38b4704bc6",
+    description: "Áo hoodie form rộng màu pastel, chất cotton dày mềm mịn, phù hợp layer.",
+    rating: 4.8,
+    reviews: 91
+  },
+
+  // ── Jacket ───────────────────────────────────────────────────────────────
+  {
+    id: "ao-9",
+    code: "SEED-CLOTH-09",
+    category: "ao",
+    subCategory: "Jacket",
+    label: "Áo khoác",
+    name: "Windbreaker Lightweight",
+    price: 1100000,
+    oldPrice: 1350000,
+    tag: "Chống gió",
+    colors: ["#212121", "#616161"],
+    colorNames: ["Đen nhám", "Xám"],
+    image: "1544441893-675973e31985",
+    description: "Áo khoác gió siêu nhẹ có thể gấp gọn vào túi, chống nước mưa nhỏ.",
+    rating: 4.8,
+    reviews: 130
+  },
+  {
+    id: "ao-10",
+    code: "SEED-CLOTH-10",
+    category: "ao",
+    subCategory: "Jacket",
+    label: "Áo khoác",
+    name: "Bomber Satin Jacket",
+    price: 1450000,
+    oldPrice: 1750000,
+    tag: "Phong cách",
+    colors: ["#827717", "#1b5e20"],
+    colorNames: ["Xanh rêu olive", "Xanh lục"],
+    image: "1591047139829-d91aecb6caea",
+    description: "Áo bomber vải satin bóng mịn, phối màu hai tông, cổ gân bo dệt.",
+    rating: 4.9,
+    reviews: 167
+  },
+  {
+    id: "ao-11",
+    code: "SEED-CLOTH-11",
+    category: "ao",
+    subCategory: "Jacket",
+    label: "Áo khoác",
+    name: "Denim Trucker Jacket",
+    price: 1250000,
+    oldPrice: 1500000,
+    tag: "Vintage",
+    colors: ["#1565c0", "#0d47a1"],
+    colorNames: ["Xanh denim wash", "Xanh chàm"],
+    image: "1576995853123-5a10305d93c0",
+    description: "Áo khoác denim cổ điển kiểu trucker, wash màu trung tính dễ phối.",
+    rating: 4.9,
+    reviews: 198
+  },
+  {
+    id: "ao-12",
+    code: "SEED-CLOTH-12",
+    category: "ao",
+    subCategory: "Jacket",
+    label: "Áo khoác",
+    name: "Puffer Crop Jacket",
+    price: 1350000,
+    oldPrice: 1600000,
+    tag: "Mùa đông",
+    colors: ["#eceff1", "#b0bec5"],
+    colorNames: ["Trắng tuyết", "Xám nhạt"],
+    image: "1548883354-7622d03aca27",
+    description: "Áo phao ngắn form crop, chất liệu nylon bóng nhẹ, giữ ấm mùa đông.",
+    rating: 4.7,
+    reviews: 84
   }
 ];
 
@@ -203,6 +413,8 @@ const PRODUCTS = [
 let currentCategory = "all";
 let searchKeyword = "";
 let currentSort = "default";
+let maxPriceFilter = 3500000;
+let currentPricePreset = "all"; // "all", "under500", "500-1500", "over1500", "custom"
 let cart = [];
 let appliedVoucher = null; // { code: "SOUL20", discountPercent: 20 }
 const FREESHIP_THRESHOLD = 399000;
@@ -240,21 +452,128 @@ function setupGlobalKeys() {
   });
 }
 
+// Xử lý bộ lọc giá
+function onPriceSliderInput(val) {
+  maxPriceFilter = parseInt(val, 10);
+  currentPricePreset = "custom";
+
+  const display = $("price-max-display");
+  if (display) display.textContent = formatVND(maxPriceFilter);
+
+  document.querySelectorAll(".price-preset-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.pricePreset === "custom");
+  });
+
+  renderCatalog();
+}
+
+function setPricePreset(preset) {
+  currentPricePreset = preset;
+
+  document.querySelectorAll(".price-preset-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.pricePreset === preset);
+  });
+
+  const slider = $("price-range-input");
+  const display = $("price-max-display");
+
+  if (preset === "all") {
+    maxPriceFilter = 3500000;
+    if (slider) slider.value = 3500000;
+    if (display) display.textContent = formatVND(3500000);
+  } else if (preset === "under500") {
+    maxPriceFilter = 500000;
+    if (slider) slider.value = 500000;
+    if (display) display.textContent = "< 500.000đ";
+  } else if (preset === "500-1500") {
+    maxPriceFilter = 1500000;
+    if (slider) slider.value = 1500000;
+    if (display) display.textContent = "500k – 1.5tr";
+  } else if (preset === "over1500") {
+    maxPriceFilter = 3500000;
+    if (slider) slider.value = 3500000;
+    if (display) display.textContent = "> 1.5tr";
+  }
+
+  renderCatalog();
+}
+
+function filterCategory(cat) {
+  currentCategory = cat;
+  renderCatalog();
+}
+
+function handleSearch(val) {
+  searchKeyword = val || "";
+  renderCatalog();
+}
+
+function sortCatalog(val) {
+  currentSort = val || "default";
+  renderCatalog();
+}
+
+function resetAll() {
+  currentCategory = "all";
+  searchKeyword = "";
+  currentSort = "default";
+  maxPriceFilter = 3500000;
+  currentPricePreset = "all";
+
+  const searchInput = $("main-search-input");
+  if (searchInput) searchInput.value = "";
+
+  const sortSelect = $("sort-select");
+  if (sortSelect) sortSelect.value = "default";
+
+  const slider = $("price-range-input");
+  if (slider) slider.value = 3500000;
+
+  const display = $("price-max-display");
+  if (display) display.textContent = formatVND(3500000);
+
+  document.querySelectorAll(".price-preset-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.pricePreset === "all");
+  });
+
+  renderCatalog();
+}
+
 // ==========================================================================
 // RENDER DANH MỤC & SẢN PHẨM
 // ==========================================================================
 function renderCatalog() {
   let items = PRODUCTS.filter(p => currentCategory === "all" || p.category === currentCategory);
+
+  // Lọc theo mức giá
+  if (currentPricePreset === "under500") {
+    items = items.filter(p => p.price < 500000);
+  } else if (currentPricePreset === "500-1500") {
+    items = items.filter(p => p.price >= 500000 && p.price <= 1500000);
+  } else if (currentPricePreset === "over1500") {
+    items = items.filter(p => p.price > 1500000);
+  } else {
+    items = items.filter(p => p.price <= maxPriceFilter);
+  }
   
   const q = searchKeyword.trim().toLowerCase();
   if (q) {
     items = items.filter(p => 
-      (p.name + " " + p.label + " " + p.description + " " + p.code).toLowerCase().includes(q)
+      (p.name + " " + p.label + " " + (p.subCategory || "") + " " + p.description + " " + p.code).toLowerCase().includes(q)
     );
   }
 
   if (currentSort === "price-asc") items.sort((a, b) => a.price - b.price);
   if (currentSort === "price-desc") items.sort((a, b) => b.price - a.price);
+
+  // Cập nhật số lượng trên các nút tab danh mục
+  const totalAll = PRODUCTS.length;
+  const totalAo = PRODUCTS.filter(p => p.category === "ao").length;
+  const totalGiay = PRODUCTS.filter(p => p.category === "giay").length;
+
+  if ($("count-all")) $("count-all").textContent = totalAll;
+  if ($("count-ao")) $("count-ao").textContent = totalAo;
+  if ($("count-giay")) $("count-giay").textContent = totalGiay;
 
   $("result-count").textContent = `${items.length} sản phẩm`;
   $("empty-state").classList.toggle("hidden", items.length > 0);
