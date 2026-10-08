@@ -3,412 +3,69 @@
  * Hỗ trợ tìm kiếm đa phương thức: Từ khóa, Ảnh AI, Quét mã QR
  */
 
-// ── Dữ liệu 23 sản phẩm đồng bộ từ backend/scripts/seed.py ──
-const PRODUCTS = [
-  // ── Sneakers ────────────────────────────────────────────────────────────
-  {
-    id: "giay-1",
-    code: "SEED-SHOES-01",
-    category: "giay",
-    subCategory: "Sneakers",
-    label: "Sneaker",
-    name: "Urban Runner X1",
-    price: 850000,
-    oldPrice: 1050000,
-    tag: "Hot",
-    colors: ["#e0e0e0", "#ffffff"],
-    colorNames: ["Trắng xám", "Trắng"],
-    image: "1549298916-b41d501d3772",
-    description: "Giày sneaker cổ thấp thiết kế tối giản, đế cao su chống trượt, thích hợp đi phố hàng ngày.",
-    rating: 4.8,
-    reviews: 124
-  },
-  {
-    id: "giay-2",
-    code: "SEED-SHOES-02",
-    category: "giay",
-    subCategory: "Sneakers",
-    label: "Sneaker",
-    name: "Street Classic Pro",
-    price: 1200000,
-    oldPrice: 1450000,
-    tag: "Bán chạy",
-    colors: ["#212121", "#424242"],
-    colorNames: ["Đen nhám", "Xám đen"],
-    image: "1525966222134-fcfa99b8ae77",
-    description: "Sneaker phong cách retro với phần upper bằng da tổng hợp cao cấp và đệm lót êm ái.",
-    rating: 4.9,
-    reviews: 89
-  },
-  {
-    id: "giay-3",
-    code: "SEED-SHOES-03",
-    category: "giay",
-    subCategory: "Sneakers",
-    label: "Sneaker",
-    name: "Neon Kick 2.0",
-    price: 750000,
-    oldPrice: 890000,
-    tag: "Mới",
-    colors: ["#f48fb1", "#ffffff"],
-    colorNames: ["Hồng neon", "Trắng"],
-    image: "1595950653106-6c9ebd614d3a",
-    description: "Sneaker nổi bật với phối màu neon, thiết kế trẻ trung năng động.",
-    rating: 4.7,
-    reviews: 56
-  },
-  {
-    id: "giay-4",
-    code: "SEED-SHOES-04",
-    category: "giay",
-    subCategory: "Sneakers",
-    label: "Sneaker",
-    name: "Canvas Low Top",
-    price: 550000,
-    oldPrice: 650000,
-    tag: "",
-    colors: ["#1a237e", "#ffffff"],
-    colorNames: ["Xanh navy", "Trắng"],
-    image: "1607522370275-f14206abe5d3",
-    description: "Giày vải canvas mềm nhẹ, thoáng khí, phù hợp mùa hè.",
-    rating: 4.6,
-    reviews: 42
-  },
-  {
-    id: "giay-5",
-    code: "SEED-SHOES-05",
-    category: "giay",
-    subCategory: "Sneakers",
-    label: "Sneaker",
-    name: "Monochrome Edge",
-    price: 980000,
-    oldPrice: 1150000,
-    tag: "Xu hướng",
-    colors: ["#fafafa", "#e0e0e0"],
-    colorNames: ["Trắng đơn sắc", "Ghi sáng"],
-    image: "1560769629-975ec94e6a86",
-    description: "Sneaker toàn trắng đơn sắc, dễ phối đồ với mọi outfit.",
-    rating: 4.9,
-    reviews: 178
-  },
+// ── Dữ liệu sản phẩm lấy từ backend ──
+const API_BASE = "http://localhost:8000/api/v1";
+let PRODUCTS = [];
 
-  // ── Running Shoes ────────────────────────────────────────────────────────
-  {
-    id: "giay-6",
-    code: "SEED-SHOES-06",
-    category: "giay",
-    subCategory: "Running Shoes",
-    label: "Giày chạy bộ",
-    name: "AeroStride 500",
-    price: 1850000,
-    oldPrice: 2150000,
-    tag: "Cao cấp",
-    colors: ["#1565c0", "#0d47a1"],
-    colorNames: ["Xanh dương", "Xanh sẫm"],
-    image: "1542291026-7eec264c27ff",
-    description: "Giày chạy bộ với công nghệ đệm khí, hỗ trợ vòm chân, lý tưởng cho cự ly dài.",
-    rating: 4.9,
-    reviews: 210
-  },
-  {
-    id: "giay-7",
-    code: "SEED-SHOES-07",
-    category: "giay",
-    subCategory: "Running Shoes",
-    label: "Giày chạy bộ",
-    name: "FlexRun Lite",
-    price: 1350000,
-    oldPrice: 1590000,
-    tag: "",
-    colors: ["#ff7043", "#ffffff"],
-    colorNames: ["Cam san hô", "Trắng"],
-    image: "1584735935682-2f2b69dff9d2",
-    description: "Giày chạy siêu nhẹ với đế Phylon linh hoạt, phù hợp tập gym và chạy ngắn.",
-    rating: 4.8,
-    reviews: 95
-  },
-  {
-    id: "giay-8",
-    code: "SEED-SHOES-08",
-    category: "giay",
-    subCategory: "Running Shoes",
-    label: "Giày chạy bộ",
-    name: "TrailBlazer Pro",
-    price: 2100000,
-    oldPrice: 2450000,
-    tag: "Chống nước",
-    colors: ["#757575", "#424242"],
-    colorNames: ["Xám xi măng", "Đen"],
-    image: "1551107696-a4b0c5a0d9a2",
-    description: "Giày chạy địa hình với đế bám tốt, chống nước nhẹ, phù hợp chạy trail.",
-    rating: 4.9,
-    reviews: 134
-  },
-  {
-    id: "giay-9",
-    code: "SEED-SHOES-09",
-    category: "giay",
-    subCategory: "Running Shoes",
-    label: "Giày chạy bộ",
-    name: "SpeedForm Elite",
-    price: 3200000,
-    oldPrice: 3800000,
-    tag: "Flagship",
-    colors: ["#f9a825", "#212121"],
-    colorNames: ["Vàng dạ quang", "Đen"],
-    image: "1539185441755-769473a23570",
-    description: "Giày thi đấu tốc độ cao với carbon plate và đệm foam phản lực.",
-    rating: 5.0,
-    reviews: 312
-  },
+const LABELS = {
+  "Sneakers": "Sneaker",
+  "Running Shoes": "Giày chạy bộ",
+  "Sandals": "Dép & Sandal",
+  "T-Shirt": "Áo thun",
+  "Hoodie": "Áo Hoodie",
+  "Jacket": "Áo khoác"
+};
 
-  // ── Sandals ──────────────────────────────────────────────────────────────
-  {
-    id: "giay-10",
-    code: "SEED-SHOES-10",
-    category: "giay",
-    subCategory: "Sandals",
-    label: "Dép & Sandal",
-    name: "Summer Slide Basic",
-    price: 250000,
-    oldPrice: 320000,
-    tag: "Giá tốt",
-    colors: ["#d7ccc8", "#8d6e63"],
-    colorNames: ["Kem be", "Nâu nhạt"],
-    image: "1562183241-b937e95585b6",
-    description: "Dép xăng đan đế EVA nhẹ, quai ngang đơn giản, thoải mái cho mùa hè.",
-    rating: 4.5,
-    reviews: 68
-  },
-  {
-    id: "giay-11",
-    code: "SEED-SHOES-11",
-    category: "giay",
-    subCategory: "Sandals",
-    label: "Dép & Sandal",
-    name: "Sport Sandal Active",
-    price: 480000,
-    oldPrice: 580000,
-    tag: "",
-    colors: ["#6d4c41", "#3e2723"],
-    colorNames: ["Nâu đất", "Đen đất"],
-    image: "1603808033192-082d6919d3e1",
-    description: "Dép thể thao với quai velcro điều chỉnh được, đế chống trượt, đi biển hoặc trekking nhẹ.",
-    rating: 4.7,
-    reviews: 51
-  },
+// DB chỉ lưu tên màu (white, pink...), card cần mã hex để vẽ chấm màu
+const COLOR_HEX = {
+  white: "#ffffff", black: "#212121", pink: "#f48fb1", navy: "#1a237e",
+  blue: "#1565c0", coral: "#ff7043", grey: "#9e9e9e", yellow: "#f9a825",
+  beige: "#d7ccc8", brown: "#6d4c41", lavender: "#ce93d8", olive: "#827717"
+};
 
-  // ── T-Shirt ──────────────────────────────────────────────────────────────
-  {
-    id: "ao-1",
-    code: "SEED-CLOTH-01",
-    category: "ao",
-    subCategory: "T-Shirt",
-    label: "Áo thun",
-    name: "Essential Tee White",
-    price: 199000,
-    oldPrice: 250000,
-    tag: "Basic",
-    colors: ["#fafafa", "#e0e0e0"],
-    colorNames: ["Trắng tinh", "Ghi nhạt"],
-    image: "1521572267360-ee0c2909d518",
-    description: "Áo thun basic cổ tròn 100% cotton, thoáng mát, form regular fit phù hợp mọi vóc dáng.",
-    rating: 4.8,
-    reviews: 245
-  },
-  {
-    id: "ao-2",
-    code: "SEED-CLOTH-02",
-    category: "ao",
-    subCategory: "T-Shirt",
-    label: "Áo thun",
-    name: "Graphic Print Tee",
-    price: 320000,
-    oldPrice: 390000,
-    tag: "Streetwear",
-    colors: ["#212121", "#424242"],
-    colorNames: ["Đen hoạ tiết", "Ghi sẫm"],
-    image: "1618354691373-d851c5c3a990",
-    description: "Áo thun in họa tiết streetwear, chất liệu cotton blend 65/35 co giãn nhẹ.",
-    rating: 4.7,
-    reviews: 112
-  },
-  {
-    id: "ao-3",
-    code: "SEED-CLOTH-03",
-    category: "ao",
-    subCategory: "T-Shirt",
-    label: "Áo thun",
-    name: "Cropped Pastel Tee",
-    price: 280000,
-    oldPrice: 340000,
-    tag: "",
-    colors: ["#ce93d8", "#ffffff"],
-    colorNames: ["Tím pastel", "Trắng"],
-    image: "1583743814966-8936f5b7be1a",
-    description: "Áo thun ngắn tay crop top màu pastel, form dáng năng động trẻ trung.",
-    rating: 4.6,
-    reviews: 73
-  },
-  {
-    id: "ao-4",
-    code: "SEED-CLOTH-04",
-    category: "ao",
-    subCategory: "T-Shirt",
-    label: "Áo thun",
-    name: "Oversized Drop Shoulder",
-    price: 350000,
-    oldPrice: 420000,
-    tag: "Form rộng",
-    colors: ["#9e9e9e", "#616161"],
-    colorNames: ["Xám tiêu", "Xám đậm"],
-    image: "1503342217505-b0a15ec3261c",
-    description: "Áo thun tay lỡ form rộng phong cách unisex, vải cotton dày dặn.",
-    rating: 4.8,
-    reviews: 164
-  },
-  {
-    id: "ao-5",
-    code: "SEED-CLOTH-05",
-    category: "ao",
-    subCategory: "T-Shirt",
-    label: "Áo thun",
-    name: "Striped Nautical Tee",
-    price: 260000,
-    oldPrice: 320000,
-    tag: "",
-    colors: ["#283593", "#ffffff"],
-    colorNames: ["Xanh sọc trắng", "Trắng sọc xanh"],
-    image: "1523381210434-271e8be1f52b",
-    description: "Áo thun kẻ sọc phong cách hải quân, co dãn 4 chiều, mặc thoải mái cả ngày.",
-    rating: 4.7,
-    reviews: 88
-  },
+async function loadProducts() {
+  try {
+    const [prodRes, catRes] = await Promise.all([
+      fetch(`${API_BASE}/products?limit=100`),
+      fetch(`${API_BASE}/categories`)
+    ]);
+    if (!prodRes.ok || !catRes.ok) throw new Error("API lỗi");
 
-  // ── Hoodie ───────────────────────────────────────────────────────────────
-  {
-    id: "ao-6",
-    code: "SEED-CLOTH-06",
-    category: "ao",
-    subCategory: "Hoodie",
-    label: "Áo Hoodie",
-    name: "Classic Pullover Hoodie",
-    price: 680000,
-    oldPrice: 820000,
-    tag: "Bán chạy",
-    colors: ["#bdbdbd", "#424242"],
-    colorNames: ["Xám nỉ", "Đen"],
-    image: "1556905055-8f358a7a47b2",
-    description: "Áo hoodie chui đầu chất nỉ bông dày ấm, túi kangaroo, dây rút mũ điều chỉnh.",
-    rating: 4.9,
-    reviews: 215
-  },
-  {
-    id: "ao-7",
-    code: "SEED-CLOTH-07",
-    category: "ao",
-    subCategory: "Hoodie",
-    label: "Áo Hoodie",
-    name: "Zip-Up Tech Fleece",
-    price: 950000,
-    oldPrice: 1150000,
-    tag: "Tech Fleece",
-    colors: ["#1a237e", "#000000"],
-    colorNames: ["Xanh navy", "Đen"],
-    image: "1578587018452-892bacefd3f2",
-    description: "Áo hoodie kéo khóa chất liệu tech fleece cao cấp, giữ ấm tốt và thoáng khí.",
-    rating: 4.9,
-    reviews: 142
-  },
-  {
-    id: "ao-8",
-    code: "SEED-CLOTH-08",
-    category: "ao",
-    subCategory: "Hoodie",
-    label: "Áo Hoodie",
-    name: "Pastel Oversized Hoodie",
-    price: 720000,
-    oldPrice: 860000,
-    tag: "",
-    colors: ["#f8bbd0", "#ffffff"],
-    colorNames: ["Hồng phấn", "Trắng kem"],
-    image: "1509967419530-da38b4704bc6",
-    description: "Áo hoodie form rộng màu pastel, chất cotton dày mềm mịn, phù hợp layer.",
-    rating: 4.8,
-    reviews: 91
-  },
+    const { items } = await prodRes.json();
+    const cats = await catRes.json();
+    const catById = Object.fromEntries(cats.map(c => [c.id, c]));
 
-  // ── Jacket ───────────────────────────────────────────────────────────────
-  {
-    id: "ao-9",
-    code: "SEED-CLOTH-09",
-    category: "ao",
-    subCategory: "Jacket",
-    label: "Áo khoác",
-    name: "Windbreaker Lightweight",
-    price: 1100000,
-    oldPrice: 1350000,
-    tag: "Chống gió",
-    colors: ["#212121", "#616161"],
-    colorNames: ["Đen nhám", "Xám"],
-    image: "1544441893-675973e31985",
-    description: "Áo khoác gió siêu nhẹ có thể gấp gọn vào túi, chống nước mưa nhỏ.",
-    rating: 4.8,
-    reviews: 130
-  },
-  {
-    id: "ao-10",
-    code: "SEED-CLOTH-10",
-    category: "ao",
-    subCategory: "Jacket",
-    label: "Áo khoác",
-    name: "Bomber Satin Jacket",
-    price: 1450000,
-    oldPrice: 1750000,
-    tag: "Phong cách",
-    colors: ["#827717", "#1b5e20"],
-    colorNames: ["Xanh rêu olive", "Xanh lục"],
-    image: "1591047139829-d91aecb6caea",
-    description: "Áo bomber vải satin bóng mịn, phối màu hai tông, cổ gân bo dệt.",
-    rating: 4.9,
-    reviews: 167
-  },
-  {
-    id: "ao-11",
-    code: "SEED-CLOTH-11",
-    category: "ao",
-    subCategory: "Jacket",
-    label: "Áo khoác",
-    name: "Denim Trucker Jacket",
-    price: 1250000,
-    oldPrice: 1500000,
-    tag: "Vintage",
-    colors: ["#1565c0", "#0d47a1"],
-    colorNames: ["Xanh denim wash", "Xanh chàm"],
-    image: "1576995853123-5a10305d93c0",
-    description: "Áo khoác denim cổ điển kiểu trucker, wash màu trung tính dễ phối.",
-    rating: 4.9,
-    reviews: 198
-  },
-  {
-    id: "ao-12",
-    code: "SEED-CLOTH-12",
-    category: "ao",
-    subCategory: "Jacket",
-    label: "Áo khoác",
-    name: "Puffer Crop Jacket",
-    price: 1350000,
-    oldPrice: 1600000,
-    tag: "Mùa đông",
-    colors: ["#eceff1", "#b0bec5"],
-    colorNames: ["Trắng tuyết", "Xám nhạt"],
-    image: "1548883354-7622d03aca27",
-    description: "Áo phao ngắn form crop, chất liệu nylon bóng nhẹ, giữ ấm mùa đông.",
-    rating: 4.7,
-    reviews: 84
+    PRODUCTS = items.map(p => {
+      const sub = p.category;                       // vd: Sneakers
+      const parent = sub && sub.parent_id ? catById[sub.parent_id] : null; // vd: Shoes
+      const group = parent ? parent.name : (sub ? sub.name : "");
+      const primary = p.images.find(i => i.is_primary) || p.images[0];
+      const hex = COLOR_HEX[(p.color || "").toLowerCase()] || "#cccccc";
+
+      return {
+        id: p.id,
+        code: "SP-" + p.id.slice(0, 8).toUpperCase(),
+        category: group === "Shoes" ? "giay" : "ao",
+        subCategory: sub ? sub.name : "",
+        label: sub ? (LABELS[sub.name] || sub.name) : "",
+        name: p.name,
+        price: Number(p.price),                     // API trả "850000.00" dạng chuỗi
+        oldPrice: null,
+        tag: "",
+        colors: [hex],
+        colorNames: [p.color || ""],
+        image: primary ? primary.image_url : "",
+        description: p.description || "",
+        rating: 4.5,
+        reviews: 0
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    showToast("Không tải được sản phẩm từ server. Kiểm tra backend đã chạy chưa.");
   }
-];
-
+  renderCatalog();
+}
 // ── Trạng thái ứng dụng ──
 let currentCategory = "all";
 let searchKeyword = "";
@@ -427,11 +84,11 @@ let qrScanInterval = null;
 // Tiện ích DOM & Định dạng
 const $ = id => document.getElementById(id);
 const formatVND = n => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
-const img = id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=700&q=80`;
+const img = url => url;   // image đã là URL đầy đủ từ backend
 
 // ── Khởi tạo ──
 document.addEventListener("DOMContentLoaded", () => {
-  renderCatalog();
+  loadProducts();
   setupImageDropzone();
   setupQrDropzone();
   setupGlobalKeys();
