@@ -2,13 +2,13 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.category import CategoryRead
 
 
 class ProductImageCreate(BaseModel):
-    image_url: HttpUrl
+    image_url: str = Field(min_length=1, max_length=2048)
     is_primary: bool = False
 
 
@@ -27,6 +27,8 @@ class ProductCreate(BaseModel):
     gender: str | None = Field(default=None, max_length=30)
     color: str | None = Field(default=None, max_length=50)
     price: Decimal | None = None
+    external_id: str | None = Field(default=None, max_length=64)
+    canonical_text: str | None = None
     images: list[ProductImageCreate] = Field(default_factory=list)
 
 
@@ -37,6 +39,8 @@ class ProductUpdate(BaseModel):
     gender: str | None = Field(default=None, max_length=30)
     color: str | None = Field(default=None, max_length=50)
     price: Decimal | None = None
+    external_id: str | None = Field(default=None, max_length=64)
+    canonical_text: str | None = None
     images: list[ProductImageCreate] | None = None
 
 
@@ -51,6 +55,8 @@ class ProductRead(BaseModel):
     gender: str | None
     color: str | None
     price: Decimal | None
+    external_id: str | None = None
+    canonical_text: str | None = None
     created_at: datetime
     updated_at: datetime
     images: list[ProductImageRead]

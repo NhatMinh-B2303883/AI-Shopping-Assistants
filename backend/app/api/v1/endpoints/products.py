@@ -77,7 +77,11 @@ def list_products(
         statement = statement.where(Product.price <= max_price)
 
     total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
-    order_by = {"newest": Product.created_at.desc(), "price_asc": Product.price.asc(), "price_desc": Product.price.desc()}[sort]
+    order_by = {
+        "newest": Product.created_at.desc(),
+        "price_asc": Product.price.asc().nullslast(),
+        "price_desc": Product.price.desc().nullslast(),
+    }[sort]
     items_statement = statement.options(selectinload(Product.images), selectinload(Product.category))
     items = list(db.scalars(items_statement.order_by(order_by).limit(limit).offset(offset)).unique())
     return ProductListResponse(items=items, total=total, limit=limit, offset=offset)
@@ -111,6 +115,8 @@ def create_product(payload: ProductCreate, db: DBSession, _: AdminUser) -> Produ
         gender=payload.gender,
         color=payload.color,
         price=payload.price,
+        external_id=payload.external_id.strip() if payload.external_id else None,
+        canonical_text=payload.canonical_text,
     )
     replace_images(product, payload.images)
     db.add(product)
@@ -123,10 +129,21 @@ def update_product(product_id: UUID, payload: ProductUpdate, db: DBSession, _: A
     product = get_product_or_404(product_id, db)
     if payload.category_id and db.get(Category, payload.category_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-    for field in ("name", "description", "category_id", "gender", "color", "price"):
+    for field in (
+        "name",
+        "description",
+        "category_id",
+        "gender",
+        "color",
+        "price",
+        "external_id",
+        "canonical_text",
+    ):
         if field in payload.model_fields_set:
             value = getattr(payload, field)
-            setattr(product, field, value.strip() if field == "name" and value else value)
+            if field in ("name", "external_id") and isinstance(value, str):
+                value = value.strip() or None
+            setattr(product, field, value)
     if payload.images is not None:
         replace_images(product, payload.images)
     db.commit()
