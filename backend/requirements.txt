@@ -9,6 +9,12 @@ pgvector==0.4.1
 SQLAlchemy==2.0.43
 uvicorn[standard]==0.37.0
 
+# AI / ML — SigLIP 2 inference (google/siglip2-base-patch16-256)
+torch>=2.9.0
+transformers>=4.48.0
+Pillow>=10.0.0
+python-multipart>=0.0.18
+
 # Development and testing
 httpx==0.28.1
 pytest==8.4.2

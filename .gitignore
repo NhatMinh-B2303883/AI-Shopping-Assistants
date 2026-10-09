@@ -16,6 +16,10 @@ node_modules/
 
 # User uploads and local data
 uploads/
+data/product/images/
+data/product/*.csv
+data/product/quality_reports/
+data/product/deduplicated/
 data/raw/
 
 # IDE and operating-system files

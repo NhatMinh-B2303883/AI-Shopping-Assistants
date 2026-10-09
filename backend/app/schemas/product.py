@@ -26,7 +26,7 @@ class ProductCreate(BaseModel):
     category_id: UUID | None = None
     gender: str | None = Field(default=None, max_length=30)
     color: str | None = Field(default=None, max_length=50)
-    price: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
+    price: Decimal | None = None
     images: list[ProductImageCreate] = Field(default_factory=list)
 
 
@@ -36,7 +36,7 @@ class ProductUpdate(BaseModel):
     category_id: UUID | None = None
     gender: str | None = Field(default=None, max_length=30)
     color: str | None = Field(default=None, max_length=50)
-    price: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)
+    price: Decimal | None = None
     images: list[ProductImageCreate] | None = None
 
 
@@ -50,7 +50,7 @@ class ProductRead(BaseModel):
     category: CategoryRead | None = None
     gender: str | None
     color: str | None
-    price: Decimal
+    price: Decimal | None
     created_at: datetime
     updated_at: datetime
     images: list[ProductImageRead]
