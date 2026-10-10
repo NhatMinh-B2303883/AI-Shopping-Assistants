@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EAST &amp; SOUL — Thời Trang Nam Tối Giản &amp; Trợ Lý AI</title>
+  <meta name="description" content="EAST &amp; SOUL — Thương hiệu thời trang nam tối giản hiện đại. Tìm kiếm sản phẩm thông minh bằng văn bản, hình ảnh AI và quét mã QR.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- QR Code generator (qrcodejs) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- jsQR library for live camera QR decoding -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo" onclick="resetAll(); return false;">
+        <span class="logo-mark">E&amp;S</span>
+        <span class="logo-text">EAST &amp; SOUL</span>
+        <span class="logo-tag">STUDIO</span>
+      </a>
+
+      <nav class="nav" aria-label="Danh mục sản phẩm">
+        <button data-cat="all" class="nav-item active" onclick="filterCategory('all')">Tất cả</button>
+        <button data-cat="ao" class="nav-item" onclick="filterCategory('ao')">Áo (Clothing)</button>
+        <button data-cat="giay" class="nav-item" onclick="filterCategory('giay')">Giày (Shoes)</button>
+      </nav>
+
+      <div class="tools">
+        <div class="search-bar">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="main-search-input" placeholder="Tìm áo thun, hoodie, áo khoác, sneaker..." oninput="handleSearch(this.value)" autocomplete="off">
+          
+          <div class="search-actions">
+            <!-- Nút tìm bằng hình ảnh -->
+            <button class="tool-btn" title="Tìm bằng hình ảnh (AI)" aria-label="Tìm bằng hình ảnh" onclick="openImageSearchModal()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span class="tooltip">Tìm bằng ảnh</span>
+            </button>
+
+            <!-- Nút quét mã QR ban đầu -->
+            <button class="tool-btn qr-btn" id="header-qr-btn" title="Quét mã QR sản phẩm" aria-label="Quét mã QR sản phẩm" onclick="openQrScanModal()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                <path d="M14 14h3v3h-3z"></path>
+                <path d="M20 14v3"></path>
+                <path d="M14 20h6"></path>
+                <circle cx="6.5" cy="6.5" r="1" fill="currentColor"></circle>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor"></circle>
+                <circle cx="6.5" cy="17.5" r="1" fill="currentColor"></circle>
+              </svg>
+              <span class="tooltip">Quét mã QR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nút Giỏ hàng -->
+        <button class="cart-trigger" onclick="toggleCartDrawer()" aria-label="Giỏ hàng">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="cart-label">Giỏ hàng</span>
+          <span class="cart-pill" id="cart-counter">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- INTRO / HERO SECTION (Modern Minimalism & Sharp Aesthetic) -->
+    <section class="intro">
+      <div class="intro-eyebrow">
+        <span class="pulse-dot"></span>
+        <span class="eyebrow-text">EAST &amp; SOUL · BỘ SƯU TẬP 2026</span>
+      </div>
+
+      <h1 class="intro-title">Thời trang tối giản.<br>Định hình phong cách hiện đại.</h1>
+      <p class="intro-desc">Quần áo nam thường nhật cắt may chuẩn xác, chất liệu cao cấp thoáng nhẹ. Dễ dàng khám phá bộ sưu tập phong phú và chọn lựa trang phục ưng ý.</p>
+
+      <!-- Quick AI Action Chips -->
+      <div class="quick-chips">
+        <span class="chip-label">Thao tác nhanh:</span>
+        <button class="chip" onclick="openQrScanModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <path d="M14 14h7v7h-7z"></path>
+          </svg>
+          Quét mã QR sản phẩm
+        </button>
+        <button class="chip" onclick="openImageSearchModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          Tìm bằng ảnh tương đồng
+        </button>
+        <button class="chip" onclick="filterCategory('ao')">Áo Excool</button>
+        <button class="chip" onclick="filterCategory('giay')">Sneaker da</button>
+      </div>
+
+      <!-- Trust highlights -->
+      <div class="intro-trust">
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Đổi trả 60 ngày miễn phí</span>
+        </div>
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <span>Freeship toàn quốc từ 399k</span>
+        </div>
+        <div class="trust-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>Mã giảm giá SOUL20 (Giảm 20%)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATALOG SECTION -->
+    <section class="catalog">
+      <div class="catalog-bar">
+        <div class="catalog-left">
+          <div class="catalog-pills">
+            <button class="pill-btn active" data-cat-pill="all" onclick="filterCategory('all')">Tất cả (<span id="count-all">23</span>)</button>
+            <button class="pill-btn" data-cat-pill="ao" onclick="filterCategory('ao')">Áo (<span id="count-ao">12</span>)</button>
+            <button class="pill-btn" data-cat-pill="giay" onclick="filterCategory('giay')">Giày (<span id="count-giay">11</span>)</button>
+          </div>
+          <span class="result-count" id="result-count">23 sản phẩm</span>
+        </div>
+
+        <div class="catalog-right">
+          <div class="custom-select-wrap">
+            <label for="sort-select" class="sr-only">Sắp xếp</label>
+            <select id="sort-select" onchange="sortCatalog(this.value)" aria-label="Sắp xếp sản phẩm">
+              <option value="default">Mới nhất &amp; Nổi bật</option>
+              <option value="price-asc">Giá: Thấp đến cao</option>
+              <option value="price-desc">Giá: Cao đến thấp</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICE RANGE FILTER BAR -->
+      <div class="price-filter-bar">
+        <div class="price-filter-left">
+          <div class="price-slider-wrap">
+            <label for="price-range-input" class="price-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+              </svg>
+              <span>Lọc theo giá: Đến <strong id="price-max-display">3.500.000đ</strong></span>
+            </label>
+            <input type="range" id="price-range-input" class="price-slider" min="150000" max="3500000" step="50000" value="3500000" oninput="onPriceSliderInput(this.value)">
+          </div>
+        </div>
+
+        <div class="price-filter-right">
+          <span class="price-preset-label">Mức giá nhanh:</span>
+          <button class="price-preset-btn active" data-price-preset="all" onclick="setPricePreset('all')">Tất cả</button>
+          <button class="price-preset-btn" data-price-preset="under500" onclick="setPricePreset('under500')">&lt; 500k</button>
+          <button class="price-preset-btn" data-price-preset="500-1500" onclick="setPricePreset('500-1500')">500k – 1.5tr</button>
+          <button class="price-preset-btn" data-price-preset="over1500" onclick="setPricePreset('over1500')">&gt; 1.5tr</button>
+        </div>
+      </div>
+
+      <!-- Active Filter indicator -->
+      <div class="filter-indicator hidden" id="filter-indicator">
+        <div class="filter-indicator-left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span id="filter-indicator-text"></span>
+        </div>
+        <button class="btn-clear-filter" onclick="resetAll()">
+          <span>Xóa bộ lọc</span>
+          &times;
+        </button>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="product-grid" id="product-grid"></div>
+
+      <!-- Empty State -->
+      <div class="empty hidden" id="empty-state">
+        <div class="empty-icon">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <h3>Không tìm thấy sản phẩm phù hợp</h3>
+        <p>Thử tìm bằng từ khóa khác hoặc xóa bộ lọc để xem toàn bộ sản phẩm.</p>
+        <button class="btn btn-primary" onclick="resetAll()">Xem tất cả sản phẩm</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-col brand-col">
+        <div class="logo">
+          <span class="logo-mark">E&amp;S</span>
+          <span class="logo-text">EAST &amp; SOUL</span>
+        </div>
+        <p class="footer-tagline">Thời trang nam tối giản thường nhật. Thiết kế tinh giản, chất liệu cao cấp và trải nghiệm mua sắm hiện đại.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Khám phá &amp; Tìm kiếm</h4>
+        <ul>
+          <li><a href="#" onclick="openImageSearchModal(); return false;">Tìm kiếm bằng hình ảnh</a></li>
+          <li><a href="#" onclick="openQrScanModal(); return false;">Quét mã QR</a></li>
+          <li><a href="#" onclick="filterCategory('all'); return false;">Sản phẩm nổi bật</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Dịch vụ khách hàng</h4>
+        <ul>
+          <li><span>Đổi trả 60 ngày miễn phí tận nơi</span></li>
+          <li><span>Giao hàng hỏa tốc trong 2 giờ</span></li>
+          <li><span>Hotline &amp; Zalo: 1900 8888</span></li>
+          <li><span>Email: cskh@eastandsoul.vn</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 EAST &amp; SOUL Studio. Thời trang nam tối giản &amp; Tinh tế.</p>
+      <div class="footer-badges">
+        <span>Modern Minimalism</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================== -->
+  <!-- MODAL: QUÉT MÃ QR (QR CODE SCANNER MODAL)     -->
+  <!-- ============================================== -->
+  <div class="overlay hidden" id="modal-qr-scan" onclick="if(event.target===this) closeQrScanModal()">
+    <div class="modal qr-modal">
+      <button class="close-btn" onclick="closeQrScanModal()" aria-label="Đóng">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+        </div>
+        <div>
+          <h2>Chụp ảnh bằng điện thoại</h2>
+          <p class="muted">Quét mã QR bằng điện thoại để chụp ảnh và tìm kiếm sản phẩm phù hợp.</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher: Phone Camera / Tải ảnh -->
+      <div class="qr-tabs">
+        <button class="qr-tab active" id="qr-tab-phone" onclick="switchQrMode('phone')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          Chụp bằng điện thoại
+        </button>
+        <button class="qr-tab" id="qr-tab-upload" onclick="switchQrMode('upload')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Tải ảnh từ máy
+        </button>
+      </div>
+
+      <!-- ── TAB 1: PHONE CAMERA VIA QR ── -->
+      <div id="qr-phone-view">
+
+        <!-- State A: Waiting — show session QR -->
+        <div id="qr-phone-waiting">
+          <div class="phone-qr-instruction">
+            <div class="instruction-steps">
+              <div class="step"><div class="step-num">1</div><span>Mở camera điện thoại</span></div>
+              <div class="step-arrow">→</div>
+              <div class="step"><div class="step-num">2</div><span>Quét mã QR bên dưới</span></div>
+              <div class="step-arrow">→</div>
+              <div class="step"><div class="step-num">3</div><span>Chụp ảnh &amp; gửi lên</span></div>
+            </div>
+          </div>
+
+          <div class="session-qr-box">
+            <div class="session-qr-wrap">
+              <div id="session-qr-render"></div>
+            </div>
+            <div class="session-qr-meta">
+              <div class="session-waiting-pulse">
+                <span class="pulse-dot"></span>
+                <span>Đang chờ điện thoại kết nối...</span>
+              </div>
+              <div class="session-id-display" id="session-id-display">ID: —</div>
+            </div>
+          </div>
+
+          <div class="phone-link-fallback">
+            <span>Hoặc</span>
+            <button class="btn btn-sm btn-ghost" onclick="openMobileCameraLocal()">
+              Mở trang camera ngay trên thiết bị này
+            </button>
+          </div>
+        </div>
+
+        <!-- State B: Photo received from phone -->
+        <div id="qr-phone-received" class="hidden">
+          <div class="received-header">
+            <div class="received-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Ảnh nhận từ điện thoại
+            </div>
+          </div>
+          <div class="received-img-wrap">
+            <img id="received-phone-img" src="" alt="Ảnh từ điện thoại">
+            <div class="received-ai-badge"><span class="pulse-dot"></span> AI đang phân tích...</div>
+          </div>
+          <div class="received-actions">
+            <button class="btn btn-primary btn-block" onclick="applyPhotoSearch()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Tìm sản phẩm tương đồng
+            </button>
+            <button class="btn btn-ghost btn-block" onclick="resetPhoneSession()">Chụp lại ảnh khác</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: UPLOAD IMAGE ── -->
+      <div class="hidden" id="qr-upload-view">
+        <label class="dropzone" id="qr-dropzone">
+          <input type="file" accept="image/*" hidden id="qr-file-input" onchange="handleQrFileSelected(event)">
+          <div class="drop-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+              <path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path>
+            </svg>
+          </div>
+          <strong>Kéo thả hoặc bấm chọn ảnh sản phẩm</strong>
+          <small>JPG, PNG, WEBP — AI sẽ nhận diện và gợi ý sản phẩm tương đồng</small>
+        </label>
+
+        <div class="qr-demo-section">
+          <div class="qr-demo-title"><span>⚡ Thử nhanh với ảnh mẫu sản phẩm:</span></div>
+          <div class="qr-demo-chips">
+            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-ao-1')">
+              <span class="chip-code">PROD-ao-1</span><span class="chip-name">Áo polo Excool</span>
+            </button>
+            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-giay-3')">
+              <span class="chip-code">PROD-giay-3</span><span class="chip-name">Giày chạy Air-Stride</span>
+            </button>
+            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-quan-2')">
+              <span class="chip-code">PROD-quan-2</span><span class="chip-name">Quần jeans slim-fit</span>
+            </button>
+            <button class="qr-demo-chip promo-chip" onclick="simulateQrScan('VOUCHER-SOUL20')">
+              <span class="chip-code">🎟️ SOUL20</span><span class="chip-name">Voucher giảm 20%</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: TÌM BẰNG HÌNH ẢNH (AI VISUAL SEARCH)    -->
+  <!-- ============================================== -->
+  <div class="overlay hidden" id="modal-image-search" onclick="if(event.target===this) closeImageSearchModal()">
+    <div class="modal">
+      <button class="close-btn" onclick="closeImageSearchModal()" aria-label="Đóng">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+        </div>
+        <div>
+          <h2>Tìm kiếm bằng hình ảnh (AI)</h2>
+          <p class="muted">Tải ảnh trang phục bạn thích để AI phân tích vector đặc trưng và gợi ý sản phẩm tương đồng.</p>
+        </div>
+      </div>
+
+      <label class="dropzone" id="clean-dropzone">
+        <input type="file" accept="image/*" hidden onchange="handleFileSelected(event)">
+        <div class="drop-icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m16 16-4-4-4 4"></path>
+          </svg>
+        </div>
+        <strong>Kéo thả ảnh vào đây hoặc bấm để chọn tệp</strong>
+        <small>Định dạng JPG, PNG, WEBP (tối đa 10MB)</small>
+      </label>
+
+      <!-- Quick presets -->
+      <div class="visual-presets">
+        <span class="visual-presets-title">Hoặc thử với ảnh mẫu phong cách:</span>
+        <div class="presets-grid">
+          <button class="preset-card" onclick="simulatePresetSearch('ao')">
+            <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=180&q=80" alt="Áo Polo">
+            <span>Áo nam tối giản</span>
+          </button>
+          <button class="preset-card" onclick="simulatePresetSearch('quan')">
+            <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=180&q=80" alt="Quần jeans">
+            <span>Quần denim</span>
+          </button>
+          <button class="preset-card" onclick="simulatePresetSearch('giay')">
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=180&q=80" alt="Giày sneaker">
+            <span>Giày sneaker da</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: CHI TIẾT SẢN PHẨM (PRODUCT DETAIL)       -->
+  <!-- ============================================== -->
+  <div class="overlay hidden" id="modal-detail" onclick="if(event.target===this) closeDetailModal()">
+    <div class="modal modal-wide">
+      <button class="close-btn" onclick="closeDetailModal()" aria-label="Đóng">&times;</button>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- DRAWER: GIỎ HÀNG (CART SLIDE DRAWER)          -->
+  <!-- ============================================== -->
+  <div class="backdrop hidden" id="cart-backdrop" onclick="toggleCartDrawer()"></div>
+  <aside class="drawer" id="cart-drawer">
+    <div class="drawer-top">
+      <div class="drawer-title-wrap">
+        <h2>Giỏ hàng của bạn</h2>
+        <span class="drawer-sub" id="cart-count-sub">0 món đồ</span>
+      </div>
+      <button class="close-btn static" onclick="toggleCartDrawer()" aria-label="Đóng giỏ hàng">&times;</button>
+    </div>
+
+    <!-- Free shipping progress bar -->
+    <div class="shipping-bar-wrap">
+      <div class="shipping-text" id="shipping-progress-text">Thêm 399.000đ để được Freeship toàn quốc!</div>
+      <div class="shipping-track">
+        <div class="shipping-fill" id="shipping-progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Items list -->
+    <div class="drawer-list" id="cart-items-list"></div>
+
+    <!-- Promo code input -->
+    <div class="drawer-promo">
+      <div class="promo-input-group">
+        <input type="text" id="promo-input" placeholder="Mã giảm giá (ví dụ: SOUL20)" uppercase>
+        <button class="btn btn-sm btn-ghost" onclick="applyPromoCode()">Áp dụng</button>
+      </div>
+      <div class="promo-applied hidden" id="promo-applied-tag">
+        <span>Đã áp dụng mã <strong>SOUL20</strong> (-20%)</span>
+        <button onclick="removePromoCode()">&times;</button>
+      </div>
+    </div>
+
+    <!-- Summary bottom -->
+    <div class="drawer-bottom">
+      <div class="cost-row">
+        <span>Tạm tính</span>
+        <span id="cart-subtotal-price">0đ</span>
+      </div>
+      <div class="cost-row discount-row hidden" id="cart-discount-row">
+        <span>Giảm giá (Voucher)</span>
+        <span id="cart-discount-price" class="discount-value">-0đ</span>
+      </div>
+      <div class="cost-row">
+        <span>Phí vận chuyển</span>
+        <span id="cart-shipping-fee">Miễn phí</span>
+      </div>
+      <div class="cost-total">
+        <span>Tổng thanh toán</span>
+        <strong id="cart-total-price">0đ</strong>
+      </div>
+
+      <button class="btn btn-primary btn-block checkout-btn" onclick="handleCheckout()">
+        <span>Tiến hành thanh toán</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="drawer-guarantee">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Bảo mật thanh toán 100% · Đổi trả trong 60 ngày</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOAST NOTIFICATION STACK -->
+  <div class="toasts" id="toast-box"></div>
+
+  <!-- APPLICATION SCRIPT -->
+  <script src="app.js"></script>
+</body>
+
+</html>
