@@ -1,0 +1,101 @@
+{
+  "raw_product_count": 44446,
+  "after_master_category_filter": 30622,
+  "after_gender_filter": 29182,
+  "normalized_product_count": 12738,
+  "polo_review_count": 1288,
+  "category_counts": {
+    "Clothing": 6983,
+    "Shoes": 5755
+  },
+  "sub_category_counts": {
+    "T-Shirt": 5249,
+    "Casual Shoes": 2808,
+    "Sports Shoes": 2033,
+    "Polo": 1182,
+    "Sandals": 914,
+    "Sweatshirt": 282,
+    "Jacket": 270
+  },
+  "gender_counts": {
+    "Men": 10284,
+    "Women": 1998,
+    "Unisex": 456
+  },
+  "skipped_products": {
+    "Not in project taxonomy: Shorts": 456,
+    "Not in project taxonomy: Track Pants": 304,
+    "Not in project taxonomy: Swimwear": 17,
+    "Not in project taxonomy: Tops": 1533,
+    "Excluded articleType: Shirts": 3138,
+    "Not in project taxonomy: Capris": 129,
+    "Not in project taxonomy: Flip Flops": 893,
+    "Not in project taxonomy: Formal Shoes": 637,
+    "Not in project taxonomy: Heels": 1323,
+    "Not in project taxonomy: Flats": 500,
+    "Not in project taxonomy: Skirts": 104,
+    "Not in project taxonomy: Dresses": 390,
+    "Not in project taxonomy: Jeans": 565,
+    "Not in project taxonomy: Bra": 477,
+    "Not in project taxonomy: Leggings": 153,
+    "Not in project taxonomy: Trousers": 523,
+    "Not in project taxonomy: Tunics": 229,
+    "Not in project taxonomy: Kurtas": 1839,
+    "Not in project taxonomy: Lounge Pants": 61,
+    "Not in project taxonomy: Sweaters": 277,
+    "Not in project taxonomy: Waistcoat": 12,
+    "Not in project taxonomy: Tracksuits": 29,
+    "Not in project taxonomy: Churidar": 29,
+    "Not in project taxonomy: Kurtis": 234,
+    "Not in project taxonomy: Dupatta": 116,
+    "Not in project taxonomy: Sarees": 427,
+    "Not in project taxonomy: Suits": 1,
+    "Not in project taxonomy: Kurta Sets": 90,
+    "Not in project taxonomy: Innerwear Vests": 233,
+    "Not in project taxonomy: Lounge Shorts": 34,
+    "Not in project taxonomy: Stockings": 32,
+    "Not in project taxonomy: Briefs": 849,
+    "Not in project taxonomy: Trunk": 140,
+    "Not in project taxonomy: Tights": 9,
+    "Not in project taxonomy: Boxers": 52,
+    "Not in project taxonomy: Shrug": 6,
+    "Not in project taxonomy: Belts": 3,
+    "Not in project taxonomy: Suspenders": 40,
+    "Not in project taxonomy: Camisoles": 39,
+    "Not in project taxonomy: Jeggings": 34,
+    "Not in project taxonomy: Night suits": 141,
+    "Not in project taxonomy: Blazers": 7,
+    "Excluded articleType: Nehru Jackets": 5,
+    "Not in project taxonomy: Patiala": 38,
+    "Not in project taxonomy: Salwar": 27,
+    "Not in project taxonomy: Jumpsuit": 16,
+    "Not in project taxonomy: Nightdress": 189,
+    "Missing image": 1,
+    "Not in project taxonomy: Robe": 4,
+    "Not in project taxonomy: Shapewear": 9,
+    "Not in project taxonomy: Salwar and Dupatta": 7,
+    "Not in project taxonomy: Baby Dolls": 16,
+    "Not in project taxonomy: Rain Trousers": 2,
+    "Not in project taxonomy: Lounge Tshirts": 3,
+    "Not in project taxonomy: Bath Robe": 20,
+    "Not in project taxonomy: Lehenga Choli": 2
+  },
+  "taxonomy": {
+    "Clothing": [
+      "T-Shirt",
+      "Sweatshirt",
+      "Jacket",
+      "Polo"
+    ],
+    "Shoes": [
+      "Casual Shoes",
+      "Sports Shoes",
+      "Sandals"
+    ]
+  },
+  "allowed_genders": [
+    "Men",
+    "Women",
+    "Unisex"
+  ]
+}

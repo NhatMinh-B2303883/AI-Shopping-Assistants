@@ -1,0 +1,56 @@
+{
+    "created_at": "2026-10-09T21:55:02.391213",
+    "status": "PASS",
+    "dataset": {
+        "csv": "D:\\AI_Shopping_Assistants\\AI-Shopping-Assistants\\data\\product\\final\\products.csv",
+        "image_directory": "D:\\AI_Shopping_Assistants\\AI-Shopping-Assistants\\data\\product\\final\\images",
+        "product_count": 1000,
+        "image_file_count": 1000
+    },
+    "counts": {
+        "category": {
+            "Clothing": 561,
+            "Shoes": 439
+        },
+        "sub_category": {
+            "Jacket": 89,
+            "T-Shirt": 261,
+            "Sweatshirt": 90,
+            "Sports Shoes": 150,
+            "Casual Shoes": 177,
+            "Polo": 121,
+            "Sandals": 112
+        },
+        "gender": {
+            "Men": 810,
+            "Women": 153,
+            "Unisex": 37
+        }
+    },
+    "image_checks": {
+        "missing_images": 0,
+        "corrupt_images": 0,
+        "duplicate_product_ids": 0,
+        "duplicate_image_groups": 0,
+        "orphan_images": 0,
+        "dimensions": {
+            "60x80": 1000
+        },
+        "formats": {
+            "JPEG": 1000
+        },
+        "modes": {
+            "RGB": 996,
+            "L": 4
+        }
+    },
+    "missing_values": {
+        "description": 1000,
+        "price": 1000
+    },
+    "errors": [],
+    "warnings": [
+        "description trống ở 1000/1000 sản phẩm. Không tự tạo dữ liệu giả.",
+        "price trống ở 1000/1000 sản phẩm. Không tự tạo dữ liệu giả."
+    ]
+}

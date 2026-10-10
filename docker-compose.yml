@@ -31,6 +31,7 @@ services:
     volumes:
       - ./backend:/app
       - ./data/product/final:/data/products:ro
+      - ./ai:/workspace/ai:ro
     depends_on:
       db:
         condition: service_healthy

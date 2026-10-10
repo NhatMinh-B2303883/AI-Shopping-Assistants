@@ -1,0 +1,22 @@
+﻿category,sub_category,gender,available_count,subcategory_target,selected_count
+Clothing,T-Shirt,Men,4128,261,206
+Clothing,T-Shirt,Unisex,71,261,4
+Clothing,T-Shirt,Women,1022,261,51
+Shoes,Casual Shoes,Men,2246,177,142
+Shoes,Casual Shoes,Unisex,228,177,14
+Shoes,Casual Shoes,Women,333,177,21
+Shoes,Sports Shoes,Men,1588,150,117
+Shoes,Sports Shoes,Unisex,42,150,3
+Shoes,Sports Shoes,Women,400,150,30
+Clothing,Polo,Men,1087,121,112
+Clothing,Polo,Unisex,0,121,0
+Clothing,Polo,Women,90,121,9
+Shoes,Sandals,Men,779,112,96
+Shoes,Sandals,Unisex,100,112,12
+Shoes,Sandals,Women,34,112,4
+Clothing,Sweatshirt,Men,220,90,71
+Clothing,Sweatshirt,Unisex,1,90,0
+Clothing,Sweatshirt,Women,59,90,19
+Clothing,Jacket,Men,200,89,66
+Clothing,Jacket,Unisex,13,89,4
+Clothing,Jacket,Women,56,89,19
