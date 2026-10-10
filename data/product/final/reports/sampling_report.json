@@ -1,0 +1,150 @@
+{
+    "created_at": "2026-10-09T21:51:40.146195",
+    "sampling_method": "Stratified sampling by sub_category, then proportional gender allocation using the largest remainder method.",
+    "random_seed": 42,
+    "input": {
+        "products": 12697
+    },
+    "sampling": {
+        "target_total": 1000,
+        "selected_total": 1000,
+        "unselected_total": 11697,
+        "subcategory_targets": {
+            "T-Shirt": 261,
+            "Casual Shoes": 177,
+            "Sports Shoes": 150,
+            "Polo": 121,
+            "Sandals": 112,
+            "Sweatshirt": 90,
+            "Jacket": 89
+        },
+        "selected_by_category": {
+            "Clothing": 561,
+            "Shoes": 439
+        },
+        "selected_by_sub_category": {
+            "T-Shirt": 261,
+            "Casual Shoes": 177,
+            "Sports Shoes": 150,
+            "Polo": 121,
+            "Sandals": 112,
+            "Sweatshirt": 90,
+            "Jacket": 89
+        },
+        "selected_by_gender": {
+            "Men": 810,
+            "Unisex": 37,
+            "Women": 153
+        },
+        "subcategory_gender_details": {
+            "T-Shirt": {
+                "Men": {
+                    "available": 4128,
+                    "selected": 206
+                },
+                "Unisex": {
+                    "available": 71,
+                    "selected": 4
+                },
+                "Women": {
+                    "available": 1022,
+                    "selected": 51
+                }
+            },
+            "Casual Shoes": {
+                "Men": {
+                    "available": 2246,
+                    "selected": 142
+                },
+                "Unisex": {
+                    "available": 228,
+                    "selected": 14
+                },
+                "Women": {
+                    "available": 333,
+                    "selected": 21
+                }
+            },
+            "Sports Shoes": {
+                "Men": {
+                    "available": 1588,
+                    "selected": 117
+                },
+                "Unisex": {
+                    "available": 42,
+                    "selected": 3
+                },
+                "Women": {
+                    "available": 400,
+                    "selected": 30
+                }
+            },
+            "Polo": {
+                "Men": {
+                    "available": 1087,
+                    "selected": 112
+                },
+                "Unisex": {
+                    "available": 0,
+                    "selected": 0
+                },
+                "Women": {
+                    "available": 90,
+                    "selected": 9
+                }
+            },
+            "Sandals": {
+                "Men": {
+                    "available": 779,
+                    "selected": 96
+                },
+                "Unisex": {
+                    "available": 100,
+                    "selected": 12
+                },
+                "Women": {
+                    "available": 34,
+                    "selected": 4
+                }
+            },
+            "Sweatshirt": {
+                "Men": {
+                    "available": 220,
+                    "selected": 71
+                },
+                "Unisex": {
+                    "available": 1,
+                    "selected": 0
+                },
+                "Women": {
+                    "available": 59,
+                    "selected": 19
+                }
+            },
+            "Jacket": {
+                "Men": {
+                    "available": 200,
+                    "selected": 66
+                },
+                "Unisex": {
+                    "available": 13,
+                    "selected": 4
+                },
+                "Women": {
+                    "available": 56,
+                    "selected": 19
+                }
+            }
+        }
+    },
+    "image_validation": {
+        "selected_products": 1000,
+        "images_copied": 1000,
+        "all_selected_images_verified": true
+    },
+    "output": {
+        "products_csv": "D:\\AI_Shopping_Assistants\\AI-Shopping-Assistants\\data\\product\\final\\products.csv",
+        "images_directory": "D:\\AI_Shopping_Assistants\\AI-Shopping-Assistants\\data\\product\\final\\images",
+        "reports_directory": "D:\\AI_Shopping_Assistants\\AI-Shopping-Assistants\\data\\product\\final\\reports"
+    }
+}

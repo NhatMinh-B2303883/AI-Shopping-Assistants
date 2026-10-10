@@ -1,50 +1,47 @@
-# AI Shopping Assistants
+# Text semantic search + vector inspection
 
-MVP e-commerce thời trang có tìm kiếm văn bản/hình ảnh/đa phương thức và gợi ý sản phẩm.
+This package adds a first text-search utility to `ai/search/` and a CLI smoke test.
 
-## Backend (Tuần 2)
+## Integration assumptions
 
-Backend dùng FastAPI, PostgreSQL 16 + pgvector, SQLAlchemy và Alembic. API documentation được FastAPI tạo tại `http://localhost:8000/docs`.
+- The repo root is mounted into the backend at `/app` (`./backend:/app`).
+- The `ai` directory is mounted into the container at `/workspace/ai:ro`.
+- Run commands from the repository root with `PYTHONPATH=/app:/workspace`.
+- `ProductEmbedding.embedding` is `Vector(768)` and `ProductEmbedding` includes
+  `embedding_type`, `product_image_id`, `model_name`, and `product_id`.
+- The stored text embeddings were made with `google/siglip2-base-patch16-256`.
+- `ai/embedding/siglip2_encoder.py` already exists from the prior refactor.
 
-### Khởi chạy lần đầu
+## Add files
 
-1. Tạo tệp môi trường (không commit tệp này):
+Copy:
+- `ai/search/__init__.py` to `ai/search/__init__.py`
+- `ai/search/semantic_search.py` to `ai/search/semantic_search.py`
+- `backend/scripts/test_semantic_search.py` to `backend/scripts/test_semantic_search.py`
+- `docs/inspect_embeddings.sql` to `docs/inspect_embeddings.sql`
 
-   ```powershell
-   Copy-Item .env.example .env
-   Copy-Item backend/.env.example backend/.env
-   ```
+Do not replace your existing root `ai/__init__.py` or embedding module.
 
-2. Thay `POSTGRES_PASSWORD` trong `.env`, sau đó đặt cùng mật khẩu trong `DATABASE_URL` ở `backend/.env`. Đặt `JWT_SECRET_KEY` thành một chuỗi bí mật dài, ngẫu nhiên.
+## Smoke test
 
-3. Khởi động database và backend. Migration được chạy tự động khi backend khởi động:
-
-   ```powershell
-   docker compose up --build
-   ```
-
-4. Kiểm tra:
-
-   ```powershell
-   Invoke-RestMethod http://localhost:8000/health
-   ```
-
-### Tạo administrator đầu tiên
-
-Sau khi container `backend` đang chạy:
+From repo root:
 
 ```powershell
-docker compose exec backend python scripts/create_admin.py admin@example.com "MotMatKhauManh123" "Administrator"
+docker compose exec -e PYTHONPATH=/app:/workspace backend python scripts/test_semantic_search.py "black hoodie" --limit 5
 ```
 
-Tài khoản tạo qua `POST /api/v1/auth/register` mặc định có role `USER`; chỉ administrator mới được tạo/sửa/xóa category và product.
+Try Vietnamese as well:
 
-### Các API hiện có
+```powershell
+docker compose exec -e PYTHONPATH=/app:/workspace backend python scripts/test_semantic_search.py "áo hoodie đen" --limit 5
+```
 
-- `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`
-- `GET /api/v1/categories` và Category CRUD cho admin
-- `GET /api/v1/products`, `GET /api/v1/products/{id}`; Product CRUD cho admin
-- `GET|POST|DELETE /api/v1/users/me/wishlist`
-- `GET|POST /api/v1/users/me/interactions`
+The script loads the model once per invocation. It ranks candidates by pgvector cosine distance; lower distance means closer. Similarity is `1 - distance` because the model's output vectors are L2-normalized. It is a ranking score, not a probability.
 
-Text semantic search, image search, multimodal search và recommendation sẽ được bổ sung ở các tuần AI tương ứng. Danh sách product hiện có filter/sort và tìm kiếm chuỗi cơ bản để hoàn thiện API nền.
+## Inspect embedding coordinates
+
+```powershell
+docker compose exec db psql -U postgres -d ai_shopping -x -c "SELECT p.external_id, p.name, e.embedding_type, vector_dims(e.embedding) AS dimensions, subvector(e.embedding, 1, 10)::text AS first_10_coordinates FROM product_embeddings e JOIN products p ON p.id = e.product_id WHERE e.model_name = 'google/siglip2-base-patch16-256' ORDER BY p.external_id, e.embedding_type LIMIT 4;"
+```
+
+To show all coordinates of one vector, replace the selected coordinate expression with `e.embedding::text AS full_vector` and use `LIMIT 1`. A 768-D vector is a point in a learned latent space; an individual coordinate normally does not have a directly interpretable human meaning by itself.
