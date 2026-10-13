@@ -127,6 +127,22 @@ class ProductImage(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
     )
 
+    @property
+    def image_web_url(self) -> str:
+        """Return the optimized URL for product cards.
+
+        Catalog images use matching filenames in images/ and images_web/.
+        For external image URLs, preserve the original URL.
+        """
+        prefix = "/catalog-images/"
+        if self.image_url.startswith(prefix):
+            return self.image_url.replace(
+                prefix,
+                "/catalog-images-web/",
+                1,
+            )
+        return self.image_url
+
     is_primary: Mapped[bool] = mapped_column(
         Boolean,
         default=False,

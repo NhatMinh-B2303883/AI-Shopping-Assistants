@@ -10,12 +10,22 @@ from app.core.config import settings
 def create_application() -> FastAPI:
     app = FastAPI(title=settings.app_name, version="0.1.0")
     
+    # Full-resolution catalog images (product detail / zoom).
     CATALOG_IMAGES_DIR = Path("/data/products/images")
     if CATALOG_IMAGES_DIR.is_dir():
         app.mount(
             "/catalog-images",
             StaticFiles(directory=str(CATALOG_IMAGES_DIR)),
             name="catalog-images",
+        )
+
+    # Web-optimized catalog images (product cards / lists).
+    CATALOG_IMAGES_WEB_DIR = Path("/data/products/images_web")
+    if CATALOG_IMAGES_WEB_DIR.is_dir():
+        app.mount(
+            "/catalog-images-web",
+            StaticFiles(directory=str(CATALOG_IMAGES_WEB_DIR)),
+            name="catalog-images-web",
         )
 
     app.add_middleware(

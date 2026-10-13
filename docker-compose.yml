@@ -25,7 +25,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      PYTHONPATH: /app
+      PYTHONPATH: /app:/workspace
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ai_shopping}
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -41,3 +41,5 @@ services:
 
 volumes:
   postgres_data:
+    external: true
+    name: ai-shopping-assistants_postgres_data

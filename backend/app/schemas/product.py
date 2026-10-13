@@ -17,6 +17,7 @@ class ProductImageRead(BaseModel):
 
     id: UUID
     image_url: str
+    image_web_url: str
     is_primary: bool
 
 

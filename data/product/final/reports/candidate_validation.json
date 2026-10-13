@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "source_products": 1000,
+  "included_products": 992,
+  "excluded_low_resolution_products": 8,
+  "excluded_product_ids": [
+    "FP002749",
+    "FP002751",
+    "FP003191",
+    "FP003213",
+    "FP005397",
+    "FP015852",
+    "FP015856",
+    "FP015864"
+  ],
+  "source_image_count": 992,
+  "web_image_count": 992,
+  "min_source_short_edge": 800,
+  "web_max_edge": 1200,
+  "source_image_total_mb": 353.76,
+  "web_image_total_mb": 84.18,
+  "source_dimensions": {
+    "1800x2400": 654,
+    "1080x1440": 338
+  }
+}
