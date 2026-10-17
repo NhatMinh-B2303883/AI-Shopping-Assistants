@@ -1,0 +1,324 @@
+# TÀI LIỆU TÍCH HỢP FRONTEND NEXT.JS — AI SHOPPING ASSISTANT
+
+## 1. Cấu hình API và URL ảnh sản phẩm
+
+### 1.1. Base API URL
+
+Backend FastAPI chạy mặc định tại:
+
+* Backend: `http://localhost:8000`
+* API prefix: `http://localhost:8000/api/v1`
+* Swagger UI: `http://localhost:8000/docs`
+* Frontend Next.js: `http://localhost:3000`
+
+Nên cấu hình trong file `.env.local` của Frontend:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_API_V1_URL=http://localhost:8000/api/v1
+```
+
+Không hardcode URL ở nhiều component. Hãy dùng biến môi trường để dễ thay đổi khi triển khai.
+
+### 1.2. Quy ước URL ảnh
+
+Backend hiện phục vụ hai phiên bản ảnh:
+
+| Trường          | URL mẫu                            | Mục đích                                          |
+| --------------- | ---------------------------------- | ------------------------------------------------- |
+| `image_url`     | `/catalog-images/FP059128.jpg`     | Ảnh gốc độ phân giải cao, dùng cho trang chi tiết |
+| `image_web_url` | `/catalog-images-web/FP059128.jpg` | Ảnh tối ưu, dùng cho danh sách và thẻ sản phẩm    |
+
+Cần ghép URL tương đối với domain backend trước khi hiển thị.
+
+Tạo helper dùng chung, ví dụ `src/lib/image-url.ts`:
+
+```typescript
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+
+export function resolveImageUrl(
+  path?: string | null,
+): string {
+  if (!path) return "/images/product-placeholder.png";
+
+  if (/^https?:\/\//i.test(path)) return path;
+
+  return `${API_BASE_URL}/${path.replace(/^\/+/, "")}`;
+}
+```
+
+Cách sử dụng:
+
+```tsx
+// Product card: ưu tiên ảnh tối ưu
+const cardImage = resolveImageUrl(
+  product.images?.[0]?.image_web_url ??
+  product.images?.[0]?.image_url,
+);
+
+// Product detail: ảnh gốc
+const detailImage = resolveImageUrl(
+  product.images?.[0]?.image_url,
+);
+```
+
+Đảm bảo Frontend có ảnh placeholder tại `public/images/product-placeholder.png`.
+
+### 1.3. Cấu hình Next.js Image
+
+Nếu sử dụng `next/image`, khai báo domain backend trong `next.config.js`:
+
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/catalog-images/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+        pathname: "/catalog-images-web/**",
+      },
+    ],
+  },
+};
+
+module.exports = nextConfig;
+```
+
+Sau khi sửa cấu hình, cần khởi động lại Next.js dev server.
+
+Khi deploy, cập nhật hostname, protocol và port theo domain backend thực tế.
+
+---
+
+## 2. Giá sản phẩm có thể bằng `null`
+
+Dữ liệu catalog có những sản phẩm chưa có giá thương mại. Không gọi trực tiếp:
+
+```typescript
+product.price.toLocaleString()
+```
+
+Cách xử lý an toàn:
+
+```tsx
+{product.price != null
+  ? `${Number(product.price).toLocaleString("vi-VN")} đ`
+  : "Đang cập nhật"}
+```
+
+Phải kiểm tra cả `null` và `undefined` trước khi định dạng giá.
+
+---
+
+## 3. Tích hợp AI Search
+
+Backend cung cấp hai endpoint tìm kiếm bằng ảnh và ảnh kết hợp văn bản.
+
+### 3.1. Tìm kiếm bằng ảnh — Visual Search
+
+```http
+POST http://localhost:8000/api/v1/search/image?top_k=10
+Content-Type: multipart/form-data
+```
+
+Frontend gửi file bằng `FormData`:
+
+```typescript
+const formData = new FormData();
+formData.append("image", file);
+
+const response = await fetch(
+  `${process.env.NEXT_PUBLIC_API_V1_URL}/search/image?top_k=10`,
+  {
+    method: "POST",
+    body: formData,
+  },
+);
+
+if (!response.ok) {
+  throw new Error("Không thể tìm kiếm bằng ảnh");
+}
+
+const data = await response.json();
+```
+
+Không tự đặt header `Content-Type: multipart/form-data`; trình duyệt cần tự tạo boundary cho `FormData`.
+
+### 3.2. Tìm kiếm kết hợp ảnh và văn bản — Multimodal Search
+
+```http
+POST http://localhost:8000/api/v1/search/multimodal?top_k=10&image_weight=0.5
+Content-Type: multipart/form-data
+```
+
+Ví dụ:
+
+```typescript
+const formData = new FormData();
+formData.append("image", file);
+formData.append(
+  "text_query",
+  "áo polo màu trắng phong cách hè",
+);
+
+const response = await fetch(
+  `${process.env.NEXT_PUBLIC_API_V1_URL}/search/multimodal?top_k=10&image_weight=0.5`,
+  {
+    method: "POST",
+    body: formData,
+  },
+);
+
+if (!response.ok) {
+  throw new Error("Không thể tìm kiếm đa phương thức");
+}
+
+const data = await response.json();
+```
+
+`image_weight=0.5` thể hiện trọng số ảnh được yêu cầu trong truy vấn kết hợp. Hãy kiểm tra hợp đồng API để biết chính xác cách backend phối hợp hai tín hiệu.
+
+### 3.3. Hiển thị kết quả AI
+
+Kết quả sản phẩm có trường `score` từ 0 đến 1 theo hợp đồng API hiện tại.
+
+Ví dụ:
+
+```tsx
+{typeof product.score === "number" && (
+  <span>
+    Độ tương đồng:{" "}
+    {(product.score * 100).toFixed(1)}%
+  </span>
+)}
+```
+
+Đây là điểm tương đồng do hệ thống trả về, không mặc nhiên là xác suất sản phẩm đúng hoặc độ chính xác được bảo đảm.
+
+Các trạng thái giao diện cần có:
+
+* Đang tải: loading indicator.
+* Thành công: danh sách sản phẩm.
+* Không tìm thấy: thông báo và gợi ý đổi truy vấn.
+* Lỗi: thông báo rõ ràng, có nút thử lại.
+* File ảnh không hợp lệ: báo lỗi trước khi gửi request nếu có thể.
+
+---
+
+## 4. Danh sách sản phẩm, phân trang và bộ lọc
+
+### 4.1. API danh sách sản phẩm
+
+```http
+GET /api/v1/products
+```
+
+Các tham số hỗ trợ:
+
+* `q`: từ khóa.
+* `category_id`: UUID danh mục.
+* `gender`: giới tính.
+* `color`: màu sắc.
+* `min_price`, `max_price`: khoảng giá.
+* `sort`: `newest`, `price_asc`, `price_desc`.
+* `limit`: số sản phẩm mỗi trang, tối đa 100.
+* `offset`: vị trí bắt đầu.
+
+Phản hồi có cấu trúc:
+
+```json
+{
+  "items": [],
+  "total": 0,
+  "limit": 10,
+  "offset": 0
+}
+```
+
+Tổng số trang:
+
+```typescript
+const totalPages = Math.ceil(total / limit);
+```
+
+Khi thay đổi bộ lọc hoặc từ khóa, nên đặt `offset = 0` để tránh rơi vào trang không còn dữ liệu.
+
+Backend đã được thiết kế để đẩy sản phẩm chưa có giá về cuối khi sắp xếp theo giá; Frontend không cần tự sắp xếp lại kết quả sau khi nhận dữ liệu.
+
+### 4.2. Sidebar bộ lọc
+
+Lấy facet từ:
+
+```http
+GET /api/v1/products/filters
+```
+
+Dùng dữ liệu phản hồi để xây dựng bộ lọc màu, giới tính và slider giá. Không tự hardcode toàn bộ lựa chọn khi backend đã cung cấp dữ liệu thực tế.
+
+---
+
+## 5. Đăng ký và đăng nhập
+
+### Đăng ký
+
+```http
+POST /api/v1/auth/register
+```
+
+Theo hợp đồng backend hiện tại, response trả về access token và thông tin người dùng. Frontend cần lưu trạng thái đăng nhập ngay sau khi đăng ký thành công, không yêu cầu người dùng đăng nhập lại.
+
+### Đăng nhập
+
+Frontend cần:
+
+* Xử lý loading và lỗi xác thực.
+* Lưu token theo cơ chế lưu trữ đã thống nhất.
+* Gửi token trong header `Authorization: Bearer <access_token>` cho những endpoint được bảo vệ.
+* Khôi phục trạng thái phiên khi tải lại trang.
+* Xử lý token hết hạn và đăng xuất.
+
+Lưu ý bảo mật: `localStorage` có rủi ro khi ứng dụng gặp XSS. Nếu kiến trúc backend hỗ trợ cookie `HttpOnly`, `Secure`, `SameSite` phù hợp, hãy cân nhắc phương án đó thay vì lưu token có thể truy cập trực tiếp bằng JavaScript.
+
+Cần đối chiếu response thực tế từ Swagger trước khi giả định tên các trường trong payload đăng ký hoặc đăng nhập.
+
+---
+
+## 6. CORS và cấu hình theo môi trường
+
+Backend đã mở CORS cho origin mặc định `http://localhost:3000`.
+
+Nếu Frontend chạy ở cổng hoặc domain khác, cần cập nhật cấu hình CORS phía backend. Không khắc phục lỗi CORS bằng cách tắt cơ chế bảo vệ của trình duyệt.
+
+Phân biệt hai loại URL:
+
+* API: `http://localhost:8000/api/v1/...`
+* Ảnh tĩnh: `http://localhost:8000/catalog-images/...` hoặc `http://localhost:8000/catalog-images-web/...`
+
+Hai loại URL này có thể có base path khác nhau nên không nên ghép `/api/v1` vào URL ảnh.
+
+---
+
+## Checklist trước khi bàn giao
+
+* [ ] Trang danh sách hiển thị ảnh tối ưu và placeholder nếu thiếu ảnh.
+* [ ] Trang chi tiết hiển thị ảnh gốc.
+* [ ] Giá `null` không làm crash component.
+* [ ] Phân trang dùng `total`, `limit`, `offset` từ backend.
+* [ ] Bộ lọc gọi đúng endpoint và phản ánh dữ liệu trả về.
+* [ ] Visual Search gửi file đúng field `image`.
+* [ ] Multimodal Search gửi cả `image` và `text_query`.
+* [ ] Đã xử lý loading, lỗi và kết quả rỗng.
+* [ ] Đăng ký/đăng nhập cập nhật trạng thái phiên đúng.
+* [ ] CORS hoạt động với origin frontend thực tế.
+* [ ] Không hardcode domain backend trong nhiều component.
+
+**Nguồn kiểm tra:** dùng Swagger tại `http://localhost:8000/docs` để xác nhận method, query parameters, field multipart và cấu trúc JSON response trước khi cố định kiểu TypeScript. Không nên suy ra payload chi tiết chỉ từ tên endpoint.

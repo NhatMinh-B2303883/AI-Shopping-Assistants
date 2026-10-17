@@ -72,9 +72,9 @@ def list_products(
     if color:
         statement = statement.where(Product.color.ilike(color.strip()))
     if min_price is not None:
-        statement = statement.where(Product.price >= min_price)
+        statement = statement.where(or_(Product.price >= min_price, Product.price.is_(None)))
     if max_price is not None:
-        statement = statement.where(Product.price <= max_price)
+        statement = statement.where(or_(Product.price <= max_price, Product.price.is_(None)))
 
     total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
     order_by = {
