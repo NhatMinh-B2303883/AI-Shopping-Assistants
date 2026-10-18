@@ -5,11 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EAST &amp; SOUL — Thời Trang Nam Tối Giản &amp; Trợ Lý AI</title>
-  <meta name="description" content="EAST &amp; SOUL — Thương hiệu thời trang nam tối giản hiện đại. Tìm kiếm sản phẩm thông minh bằng văn bản, hình ảnh AI và quét mã QR.">
+  <meta name="description"
+    content="EAST &amp; SOUL — Thương hiệu thời trang nam tối giản hiện đại. Tìm kiếm sản phẩm thông minh bằng văn bản, hình ảnh AI và quét mã QR.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2">
   <!-- QR Code generator (qrcodejs) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <!-- jsQR library for live camera QR decoding -->
@@ -34,15 +37,18 @@
 
       <div class="tools">
         <div class="search-bar">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="main-search-input" placeholder="Tìm áo thun, hoodie, áo khoác, sneaker..." oninput="handleSearch(this.value)" autocomplete="off">
-          
+          <input type="text" id="main-search-input" placeholder="Tìm áo thun, hoodie, áo khoác, sneaker..."
+            oninput="handleSearch(this.value)" autocomplete="off">
+
           <div class="search-actions">
             <!-- Nút tìm bằng hình ảnh -->
-            <button class="tool-btn" title="Tìm bằng hình ảnh (AI)" aria-label="Tìm bằng hình ảnh" onclick="openImageSearchModal()">
+            <button class="tool-btn" title="Tìm bằng hình ảnh (AI)" aria-label="Tìm bằng hình ảnh"
+              onclick="openImageSearchModal()">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                 <circle cx="12" cy="13" r="4" />
@@ -51,7 +57,8 @@
             </button>
 
             <!-- Nút quét mã QR ban đầu -->
-            <button class="tool-btn qr-btn" id="header-qr-btn" title="Quét mã QR sản phẩm" aria-label="Quét mã QR sản phẩm" onclick="openQrScanModal()">
+            <button class="tool-btn qr-btn" id="header-qr-btn" title="Quét mã QR sản phẩm"
+              aria-label="Quét mã QR sản phẩm" onclick="openQrScanModal()">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
                 <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
@@ -120,7 +127,8 @@
       </div>
 
       <h1 class="intro-title">Thời trang tối giản.<br>Định hình phong cách hiện đại.</h1>
-      <p class="intro-desc">Quần áo nam thường nhật cắt may chuẩn xác, chất liệu cao cấp thoáng nhẹ. Dễ dàng khám phá bộ sưu tập phong phú và chọn lựa trang phục ưng ý.</p>
+      <p class="intro-desc">Quần áo nam thường nhật cắt may chuẩn xác, chất liệu cao cấp thoáng nhẹ. Dễ dàng khám phá bộ
+        sưu tập phong phú và chọn lựa trang phục ưng ý.</p>
 
       <!-- Quick AI Action Chips -->
       <div class="quick-chips">
@@ -176,9 +184,12 @@
       <div class="catalog-bar">
         <div class="catalog-left">
           <div class="catalog-pills">
-            <button class="pill-btn active" data-cat-pill="all" onclick="filterCategory('all')">Tất cả (<span id="count-all">23</span>)</button>
-            <button class="pill-btn" data-cat-pill="ao" onclick="filterCategory('ao')">Áo (<span id="count-ao">12</span>)</button>
-            <button class="pill-btn" data-cat-pill="giay" onclick="filterCategory('giay')">Giày (<span id="count-giay">11</span>)</button>
+            <button class="pill-btn active" data-cat-pill="all" onclick="filterCategory('all')">Tất cả (<span
+                id="count-all">23</span>)</button>
+            <button class="pill-btn" data-cat-pill="ao" onclick="filterCategory('ao')">Áo (<span
+                id="count-ao">12</span>)</button>
+            <button class="pill-btn" data-cat-pill="giay" onclick="filterCategory('giay')">Giày (<span
+                id="count-giay">11</span>)</button>
           </div>
           <span class="result-count" id="result-count">23 sản phẩm</span>
         </div>
@@ -213,16 +224,21 @@
               </svg>
               <span>Lọc theo giá: Đến <strong id="price-max-display">3.500.000đ</strong></span>
             </label>
-            <input type="range" id="price-range-input" class="price-slider" min="150000" max="3500000" step="50000" value="3500000" oninput="onPriceSliderInput(this.value)">
+            <input type="range" id="price-range-input" class="price-slider" min="150000" max="3500000" step="50000"
+              value="3500000" oninput="onPriceSliderInput(this.value)">
           </div>
         </div>
 
         <div class="price-filter-right">
           <span class="price-preset-label">Mức giá nhanh:</span>
-          <button class="price-preset-btn active" data-price-preset="all" onclick="setPricePreset('all')">Tất cả</button>
-          <button class="price-preset-btn" data-price-preset="under500" onclick="setPricePreset('under500')">&lt; 500k</button>
-          <button class="price-preset-btn" data-price-preset="500-1500" onclick="setPricePreset('500-1500')">500k – 1.5tr</button>
-          <button class="price-preset-btn" data-price-preset="over1500" onclick="setPricePreset('over1500')">&gt; 1.5tr</button>
+          <button class="price-preset-btn active" data-price-preset="all" onclick="setPricePreset('all')">Tất
+            cả</button>
+          <button class="price-preset-btn" data-price-preset="under500" onclick="setPricePreset('under500')">&lt;
+            500k</button>
+          <button class="price-preset-btn" data-price-preset="500-1500" onclick="setPricePreset('500-1500')">500k –
+            1.5tr</button>
+          <button class="price-preset-btn" data-price-preset="over1500" onclick="setPricePreset('over1500')">&gt;
+            1.5tr</button>
         </div>
       </div>
 
@@ -230,7 +246,8 @@
       <div class="facets-bar" id="facets-bar">
         <div class="facet-group">
           <span class="facet-label">Giới tính:</span>
-          <select class="facet-select" id="gender-filter-select" onchange="onGenderFilterChange(this.value)" aria-label="Lọc theo giới tính">
+          <select class="facet-select" id="gender-filter-select" onchange="onGenderFilterChange(this.value)"
+            aria-label="Lọc theo giới tính">
             <option value="">Tất cả</option>
             <option value="men">Nam</option>
             <option value="women">Nữ</option>
@@ -307,7 +324,8 @@
           <span class="logo-mark">E&amp;S</span>
           <span class="logo-text">EAST &amp; SOUL</span>
         </div>
-        <p class="footer-tagline">Thời trang nam tối giản thường nhật. Thiết kế tinh giản, chất liệu cao cấp và trải nghiệm mua sắm hiện đại.</p>
+        <p class="footer-tagline">Thời trang nam tối giản thường nhật. Thiết kế tinh giản, chất liệu cao cấp và trải
+          nghiệm mua sắm hiện đại.</p>
       </div>
 
       <div class="footer-col">
@@ -344,7 +362,7 @@
   <div class="overlay hidden" id="modal-qr-scan" onclick="if(event.target===this) closeQrScanModal()">
     <div class="modal qr-modal">
       <button class="close-btn" onclick="closeQrScanModal()" aria-label="Đóng">&times;</button>
-      
+
       <div class="modal-header">
         <div class="modal-icon-badge">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -354,7 +372,6 @@
         </div>
         <div>
           <h2>Chụp ảnh bằng điện thoại</h2>
-          <p class="muted">Quét mã QR bằng điện thoại để chụp ảnh và tìm kiếm sản phẩm phù hợp.</p>
         </div>
       </div>
 
@@ -384,11 +401,17 @@
         <div id="qr-phone-waiting">
           <div class="phone-qr-instruction">
             <div class="instruction-steps">
-              <div class="step"><div class="step-num">1</div><span>Mở camera điện thoại</span></div>
+              <div class="step">
+                <div class="step-num">1</div><span>Mở camera điện thoại</span>
+              </div>
               <div class="step-arrow">→</div>
-              <div class="step"><div class="step-num">2</div><span>Quét mã QR bên dưới</span></div>
+              <div class="step">
+                <div class="step-num">2</div><span>Quét mã QR bên dưới</span>
+              </div>
               <div class="step-arrow">→</div>
-              <div class="step"><div class="step-num">3</div><span>Chụp ảnh &amp; gửi lên</span></div>
+              <div class="step">
+                <div class="step-num">3</div><span>Chụp ảnh &amp; gửi lên</span>
+              </div>
             </div>
           </div>
 
@@ -397,21 +420,19 @@
               <div id="session-qr-render"></div>
             </div>
             <div class="session-qr-meta">
-              <div class="session-waiting-pulse">
-                <span class="pulse-dot"></span>
-                <span>Đang chờ điện thoại kết nối...</span>
-              </div>
               <div class="session-id-display" id="session-id-display">ID: —</div>
             </div>
           </div>
 
-          <div class="phone-link-fallback">
+
+          <div class="phone-link-fallback" style="margin-top:12px;">
             <span>Hoặc</span>
             <button class="btn btn-sm btn-ghost" onclick="openMobileCameraLocal()">
               Mở trang camera ngay trên thiết bị này
             </button>
           </div>
         </div>
+
 
         <!-- State B: Photo received from phone -->
         <div id="qr-phone-received" class="hidden">
@@ -423,14 +444,19 @@
               Ảnh nhận từ điện thoại
             </div>
           </div>
-          <div class="received-img-wrap">
-            <img id="received-phone-img" src="" alt="Ảnh từ điện thoại">
-            <div class="received-ai-badge"><span class="pulse-dot"></span> AI đang phân tích...</div>
+          <div class="received-img-wrap"
+            style="min-height: 180px; max-height: 280px; display: flex; align-items: center; justify-content: center; background: #0f172a; position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 14px;">
+            <img id="received-phone-img" src="" alt="Ảnh nhận từ điện thoại"
+              style="max-height: 260px; max-width: 100%; object-fit: contain; display: block; border-radius: 8px;">
+            <div class="received-ai-badge" style="background: rgba(16, 185, 129, 0.95); color: #ffffff;"><span
+                class="pulse-dot" style="background: #ffffff;"></span> Đã nhận ảnh thành công</div>
           </div>
+
           <div class="received-actions">
             <button class="btn btn-primary btn-block" onclick="applyPhotoSearch()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
               Tìm sản phẩm tương đồng
             </button>
@@ -446,32 +472,16 @@
           <div class="drop-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
               <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
-              <path d="M12 12v9"></path><path d="m16 16-4-4-4 4"></path>
+              <path d="M12 12v9"></path>
+              <path d="m16 16-4-4-4 4"></path>
             </svg>
           </div>
           <strong>Kéo thả hoặc bấm chọn ảnh sản phẩm</strong>
           <small>JPG, PNG, WEBP — AI sẽ nhận diện và gợi ý sản phẩm tương đồng</small>
         </label>
-
-        <div class="qr-demo-section">
-          <div class="qr-demo-title"><span>⚡ Thử nhanh với ảnh mẫu sản phẩm:</span></div>
-          <div class="qr-demo-chips">
-            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-ao-1')">
-              <span class="chip-code">PROD-ao-1</span><span class="chip-name">Áo polo Excool</span>
-            </button>
-            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-giay-3')">
-              <span class="chip-code">PROD-giay-3</span><span class="chip-name">Giày chạy Air-Stride</span>
-            </button>
-            <button class="qr-demo-chip" onclick="simulateQrScan('PROD-quan-2')">
-              <span class="chip-code">PROD-quan-2</span><span class="chip-name">Quần jeans slim-fit</span>
-            </button>
-            <button class="qr-demo-chip promo-chip" onclick="simulateQrScan('VOUCHER-SOUL20')">
-              <span class="chip-code">🎟️ SOUL20</span><span class="chip-name">Voucher giảm 20%</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- ============================================== -->
@@ -480,7 +490,7 @@
   <div class="overlay hidden" id="modal-image-search" onclick="if(event.target===this) closeImageSearchModal()">
     <div class="modal">
       <button class="close-btn" onclick="closeImageSearchModal()" aria-label="Đóng">&times;</button>
-      
+
       <div class="modal-header">
         <div class="modal-icon-badge">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -489,7 +499,7 @@
           </svg>
         </div>
         <div>
-          <h2>Tìm kiếm bằng AI (SigLIP 2)</h2>
+          <h2>Tìm kiếm bằng phân tích ảnh</h2>
           <p class="muted">Tìm sản phẩm qua hình ảnh hoặc kết hợp hình ảnh và mô tả phong cách.</p>
         </div>
       </div>
@@ -514,7 +524,8 @@
 
       <!-- Dropzone (if no image selected) -->
       <label class="dropzone" id="clean-dropzone">
-        <input type="file" id="ai-file-input" accept="image/jpeg,image/png,image/webp" hidden onchange="handleAiFileSelected(event)">
+        <input type="file" id="ai-file-input" accept="image/jpeg,image/png,image/webp" hidden
+          onchange="handleAiFileSelected(event)">
         <div class="drop-icon">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
@@ -536,7 +547,8 @@
       <div class="ai-multimodal-fields hidden" id="ai-multimodal-fields">
         <div class="ai-form-group">
           <label class="ai-form-label" for="ai-text-query">Mô tả tinh chỉnh (Text Query):</label>
-          <input type="text" id="ai-text-query" class="ai-text-input" placeholder="Ví dụ: áo polo màu trắng phong cách hè, form rộng..." autocomplete="off">
+          <input type="text" id="ai-text-query" class="ai-text-input"
+            placeholder="Ví dụ: áo polo màu trắng phong cách hè, form rộng..." autocomplete="off">
         </div>
 
         <div class="ai-weight-slider-wrap">
@@ -544,7 +556,8 @@
             <span>Trọng số ưu tiên (Ảnh vs Chữ):</span>
             <span id="ai-weight-display">50% Ảnh — 50% Văn bản</span>
           </div>
-          <input type="range" id="ai-weight-slider" class="price-slider" min="0" max="1" step="0.1" value="0.5" oninput="onAiWeightChange(this.value)">
+          <input type="range" id="ai-weight-slider" class="price-slider" min="0" max="1" step="0.1" value="0.5"
+            oninput="onAiWeightChange(this.value)">
         </div>
       </div>
 
@@ -555,27 +568,8 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <span id="ai-submit-text">Bắt đầu tìm kiếm AI</span>
+          <span id="ai-submit-text">Bắt đầu tìm kiếm</span>
         </button>
-      </div>
-
-      <!-- Quick presets -->
-      <div class="visual-presets">
-        <span class="visual-presets-title">Hoặc thử với ảnh mẫu catalog:</span>
-        <div class="presets-grid">
-          <button class="preset-card" onclick="simulatePresetSearch('ao')">
-            <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=180&q=80" alt="Áo Polo">
-            <span>Áo polo nam</span>
-          </button>
-          <button class="preset-card" onclick="simulatePresetSearch('quan')">
-            <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=180&q=80" alt="Quần jeans">
-            <span>Quần denim</span>
-          </button>
-          <button class="preset-card" onclick="simulatePresetSearch('giay')">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=180&q=80" alt="Giày sneaker">
-            <span>Sneaker thể thao</span>
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -586,7 +580,7 @@
   <div class="overlay hidden" id="modal-auth" onclick="if(event.target===this) closeAuthModal()">
     <div class="modal modal-sm">
       <button class="close-btn" onclick="closeAuthModal()" aria-label="Đóng">&times;</button>
-      
+
       <div class="modal-header">
         <div class="modal-icon-badge">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -613,11 +607,13 @@
       <form id="login-form" onsubmit="handleLoginSubmit(event)">
         <div class="auth-field">
           <label for="login-email">Email:</label>
-          <input type="email" id="login-email" class="auth-input" placeholder="tenban@example.com" required autocomplete="email">
+          <input type="email" id="login-email" class="auth-input" placeholder="tenban@example.com" required
+            autocomplete="email">
         </div>
         <div class="auth-field">
           <label for="login-password">Mật khẩu:</label>
-          <input type="password" id="login-password" class="auth-input" placeholder="Nhập mật khẩu..." required autocomplete="current-password">
+          <input type="password" id="login-password" class="auth-input" placeholder="Nhập mật khẩu..." required
+            autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary btn-block" id="login-submit-btn" style="margin-top: 18px;">
           <span>Đăng nhập</span>
@@ -632,11 +628,13 @@
         </div>
         <div class="auth-field">
           <label for="reg-email">Email:</label>
-          <input type="email" id="reg-email" class="auth-input" placeholder="tenban@example.com" required autocomplete="email">
+          <input type="email" id="reg-email" class="auth-input" placeholder="tenban@example.com" required
+            autocomplete="email">
         </div>
         <div class="auth-field">
           <label for="reg-password">Mật khẩu:</label>
-          <input type="password" id="reg-password" class="auth-input" placeholder="Tối thiểu 6 ký tự..." required minlength="6" autocomplete="new-password">
+          <input type="password" id="reg-password" class="auth-input" placeholder="Tối thiểu 6 ký tự..." required
+            minlength="6" autocomplete="new-password">
         </div>
         <button type="submit" class="btn btn-primary btn-block" id="reg-submit-btn" style="margin-top: 18px;">
           <span>Tạo tài khoản &amp; Đăng nhập</span>

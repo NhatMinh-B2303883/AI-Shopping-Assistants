@@ -7,14 +7,16 @@
 // ==========================================================================
 // 1. CẤU HÌNH API & QUY ƯỚC URL ẢNH (Mục 1 & 6)
 // ==========================================================================
+const _curHost = (window.location && window.location.hostname) ? window.location.hostname : "localhost";
 const CONFIG = {
-  API_BASE_URL: "http://localhost:8000",
-  API_V1_URL: "http://localhost:8000/api/v1",
+  API_BASE_URL: `http://${_curHost}:8000`,
+  API_V1_URL: `http://${_curHost}:8000/api/v1`,
   PLACEHOLDER_IMAGE: "images/product-placeholder.png",
   MAX_UPLOAD_BYTES: 10 * 1024 * 1024, // 10 MB
   ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/webp"],
   DEFAULT_PAGE_SIZE: 12
 };
+
 
 /**
  * Ghép URL tương đối với domain backend trước khi hiển thị (Mục 1.2)
@@ -56,6 +58,7 @@ let appState = {
   categoryId: null, // UUID hoặc null
   gender: "",
   color: "",
+  colorsExpanded: false,
   minPrice: null,
   maxPrice: null,
   pricePreset: "all",
@@ -87,7 +90,7 @@ let appState = {
   // Giỏ hàng & Voucher
   cart: [],
   appliedVoucher: null,
-  
+
   // Trạng thái tải
   isLoading: false
 };
@@ -111,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   ]);
 
   loadProducts();
-  
+
   // Đóng dropdown tài khoản khi click ngoài
   document.addEventListener("click", e => {
     const wrap = $("user-trigger-wrap");
@@ -188,12 +191,40 @@ function renderDynamicFacets(filters) {
     genderSelect.innerHTML = options.join("");
   }
 
-  // 2. Cập nhật màu sắc
+  // 2. Cập nhật màu sắc (Mặc định 8 màu, hỗ trợ mở rộng/thu gọn)
   const colorsList = $("facet-colors-list");
   if (colorsList && filters.colors && filters.colors.length > 0) {
-    const pills = filters.colors.map(col => {
+    const allColors = filters.colors;
+    const MAX_DEFAULT = 8;
+    let visibleColors = allColors;
+    const isExpandable = allColors.length > MAX_DEFAULT;
+    let hiddenCount = 0;
+
+    if (isExpandable && !appState.colorsExpanded) {
+      // Lấy 8 màu đầu tiên
+      visibleColors = allColors.slice(0, MAX_DEFAULT);
+
+      // Màu đang được chọn luôn hiện, kể cả khi nằm ngoài 8 màu đầu
+      if (appState.color) {
+        const isSelectedVisible = visibleColors.some(
+          c => c.toLowerCase() === appState.color.toLowerCase()
+        );
+        if (!isSelectedVisible) {
+          const selectedColor = allColors.find(
+            c => c.toLowerCase() === appState.color.toLowerCase()
+          );
+          if (selectedColor) {
+            visibleColors.push(selectedColor);
+          }
+        }
+      }
+
+      hiddenCount = allColors.length - visibleColors.length;
+    }
+
+    let pillsHtml = visibleColors.map(col => {
       const hex = COLOR_HEX[col.toLowerCase()] || "#94a3b8";
-      const isActive = appState.color.toLowerCase() === col.toLowerCase();
+      const isActive = appState.color && appState.color.toLowerCase() === col.toLowerCase();
       return `
         <button class="facet-color-pill ${isActive ? 'active' : ''}" onclick="toggleColorFilter('${col}')" title="Lọc màu ${col}">
           <span class="facet-color-dot" style="background:${hex};"></span>
@@ -201,8 +232,26 @@ function renderDynamicFacets(filters) {
         </button>
       `;
     }).join("");
-    colorsList.innerHTML = pills;
+
+    if (isExpandable) {
+      if (!appState.colorsExpanded && hiddenCount > 0) {
+        pillsHtml += `
+          <button class="facet-color-more-btn" onclick="toggleColorsExpanded()" title="Xem thêm ${hiddenCount} màu khác">
+            +${hiddenCount} màu
+          </button>
+        `;
+      } else if (appState.colorsExpanded) {
+        pillsHtml += `
+          <button class="facet-color-more-btn" onclick="toggleColorsExpanded()" title="Thu gọn danh sách màu">
+            Thu gọn &laquo;
+          </button>
+        `;
+      }
+    }
+
+    colorsList.innerHTML = pillsHtml;
   }
+
 
   // 3. Cập nhật thanh trượt giá tối đa nếu backend có giá trị
   if (filters.price && filters.price.max != null) {
@@ -582,6 +631,14 @@ function toggleColorFilter(color) {
   loadProducts(true);
 }
 
+function toggleColorsExpanded() {
+  appState.colorsExpanded = !appState.colorsExpanded;
+  if (appState.filters) {
+    renderDynamicFacets(appState.filters);
+  }
+}
+
+
 function onPriceSliderInput(val) {
   appState.maxPrice = parseInt(val, 10);
   appState.pricePreset = "custom";
@@ -852,17 +909,17 @@ async function executeAiSearch() {
     }
 
     renderAiResults();
-    showToast(`✨ Đã tìm thấy ${appState.aiResults.length} sản phẩm tương đồng cao nhất.`);
+    showToast(`Đã tìm thấy ${appState.aiResults.length} sản phẩm tương đồng cao nhất.`);
 
     const catalogEl = document.querySelector(".catalog");
     if (catalogEl) catalogEl.scrollIntoView({ behavior: "smooth", block: "start" });
 
   } catch (err) {
     console.error("Lỗi AI Search:", err);
-    showToast(`❌ Không thể tìm kiếm AI: ${err.message}`);
+    showToast(`Không thể tìm kiếm sản phẩm phù hợp: ${err.message}`);
   } finally {
     btn.disabled = false;
-    btnText.textContent = "Bắt đầu tìm kiếm AI";
+    btnText.textContent = "Bắt đầu tìm kiếm bằng hình ảnh";
   }
 }
 
@@ -884,7 +941,7 @@ function clearAiSearch(reFetch = true) {
  */
 async function simulatePresetSearch(cat) {
   closeImageSearchModal();
-  showToast("⏳ Đang tải ảnh mẫu và trích xuất vector AI...");
+  showToast("Đang tải ảnh mẫu và tìm kiếm sản phẩm...");
 
   const presetUrls = {
     ao: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80",
@@ -911,7 +968,7 @@ function findSimilarProducts(productId) {
   const primaryImg = p.images?.find(i => i.is_primary) || p.images?.[0];
   const url = resolveImageUrl(primaryImg?.image_url);
 
-  showToast(`🔍 Đang trích xuất đặc trưng AI cho: ${p.name}...`);
+  showToast(`Đang trích xuất đặc trưng cho: ${p.name}...`);
   fetch(url)
     .then(r => r.blob())
     .then(blob => {
@@ -1173,7 +1230,7 @@ async function openDetailModal(id) {
           <span>Màu sắc: <strong>${p.color || "Tiêu chuẩn"}</strong></span>
         </div>
         <div class="color-selector">
-          <span class="color-option active" style="background:${COLOR_HEX[(p.color||'').toLowerCase()] || '#94a3b8'}" title="${p.color||'Mặc định'}"></span>
+          <span class="color-option active" style="background:${COLOR_HEX[(p.color || '').toLowerCase()] || '#94a3b8'}" title="${p.color || 'Mặc định'}"></span>
         </div>
 
         <!-- Thao tác mua -->
@@ -1437,6 +1494,40 @@ function switchQrMode(mode) {
   else stopPhoneSession();
 }
 
+function getLanIp() {
+  const saved = localStorage.getItem("es_wifi_lan_ip");
+  if (saved && saved.trim()) return saved.trim();
+  const cur = window.location.hostname;
+  if (cur && cur !== "localhost" && cur !== "127.0.0.1") return cur;
+  return "192.168.2.26"; // IP Wi-Fi máy tính hiện tại
+}
+
+function updateLanIp(val) {
+  if (!val || !val.trim()) return;
+  const clean = val.trim();
+  localStorage.setItem("es_wifi_lan_ip", clean);
+  showToast(`Đã lưu IP Wi-Fi: ${clean}`);
+  startPhoneSession();
+}
+
+function copyMobileUrl() {
+  const lanIp = getLanIp();
+  const port = window.location.port ? `:${window.location.port}` : ":3000";
+  const path = window.location.pathname.replace("index.html", "");
+  const url = `http://${lanIp}${port}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast("📋 Đã sao chép link camera! Bạn có thể dán vào Zalo/trình duyệt.");
+    }).catch(() => {
+      prompt("Sao chép link này và dán vào trình duyệt điện thoại:", url);
+    });
+  } else {
+    prompt("Sao chép link này và dán vào trình duyệt điện thoại:", url);
+  }
+}
+
+
 function startPhoneSession() {
   stopPhoneSession();
   phoneSessionId = Math.random().toString(36).slice(2, 10).toUpperCase();
@@ -1444,8 +1535,19 @@ function startPhoneSession() {
   const idEl = $("session-id-display");
   if (idEl) idEl.textContent = `Session: ${phoneSessionId}`;
 
-  const baseUrl = window.location.origin + window.location.pathname.replace("index.html", "");
-  const mobileUrl = baseUrl + `mobile-camera.html?session=${phoneSessionId}`;
+  const lanIp = getLanIp();
+  const ipInput = $("wifi-ip-input");
+  if (ipInput) ipInput.value = lanIp;
+
+  // Xây dựng URL ngắn gọn để mã QR to, rõ, điện thoại quét bắt nét cực nhanh
+  const port = window.location.port ? `:${window.location.port}` : ":3000";
+  const mobileHost = `http://${lanIp}${port}`;
+  const path = window.location.pathname.replace("index.html", "");
+  const mobileUrl = `${mobileHost}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
+
+
+  const previewEl = $("mobile-url-preview");
+  if (previewEl) previewEl.textContent = mobileUrl;
 
   const renderEl = $("session-qr-render");
   if (renderEl) {
@@ -1453,28 +1555,36 @@ function startPhoneSession() {
     if (window.QRCode) {
       new QRCode(renderEl, {
         text: mobileUrl,
-        width: 110,
-        height: 110,
-        colorDark: "#0f172a",
+        width: 140,
+        height: 140,
+        colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.L
       });
     } else {
       renderEl.innerHTML = generateCleanQrSvg(mobileUrl);
     }
   }
 
+
   const waiting = $("qr-phone-waiting");
   const received = $("qr-phone-received");
   if (waiting) waiting.classList.remove("hidden");
   if (received) received.classList.add("hidden");
+
+  // Đăng ký session trên backend relay
+  fetch(`${CONFIG.API_V1_URL}/camera/session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: phoneSessionId })
+  }).catch(() => { });
 
   listenForPhonePhoto();
 }
 
 function stopPhoneSession() {
   if (phonePollInterval) { clearInterval(phonePollInterval); phonePollInterval = null; }
-  if (broadcastChannel) { try { broadcastChannel.close(); } catch(e){} broadcastChannel = null; }
+  if (broadcastChannel) { try { broadcastChannel.close(); } catch (e) { } broadcastChannel = null; }
 }
 
 function listenForPhonePhoto() {
@@ -1486,10 +1596,23 @@ function listenForPhonePhoto() {
           onPhotoReceived(ev.data);
         }
       };
-    } catch(e) {}
+    } catch (e) { }
   }
 
-  phonePollInterval = setInterval(() => {
+  phonePollInterval = setInterval(async () => {
+    // 1. Kiểm tra Backend Relay (hoạt động đa thiết bị qua mạng LAN Wi-Fi)
+    try {
+      const res = await fetch(`${CONFIG.API_V1_URL}/camera/status/${phoneSessionId}?consume=true`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "ready" && data.image) {
+          onPhotoReceived(data);
+          return;
+        }
+      }
+    } catch (err) { }
+
+    // 2. Kiểm tra LocalStorage dự phòng (cho test cùng máy tính)
     try {
       const raw = localStorage.getItem("es_mobile_latest_event");
       if (raw) {
@@ -1498,9 +1621,10 @@ function listenForPhonePhoto() {
           onPhotoReceived(ev);
         }
       }
-    } catch(e) {}
+    } catch (e) { }
   }, 1000);
 }
+
 
 function onPhotoReceived(data) {
   stopPhoneSession();
@@ -1509,11 +1633,15 @@ function onPhotoReceived(data) {
   if (waiting) waiting.classList.add("hidden");
   if (received) received.classList.remove("hidden");
 
-  const preview = $("qr-phone-photo-preview");
-  if (preview) preview.src = data.image;
+  const preview = $("received-phone-img") || $("qr-phone-photo-preview");
+  if (preview) {
+    preview.src = data.image;
+    preview.style.display = "block";
+  }
+
 
   appState.phoneCapturedDataUrl = data.image;
-  showToast("📸 Đã nhận ảnh từ điện thoại! Bấm 'Tìm sản phẩm tương đồng' để AI xử lý.");
+  showToast("Đã nhận ảnh từ điện thoại!");
 }
 
 function applyPhotoSearch() {
@@ -1589,8 +1717,8 @@ function generateCleanQrSvg(code) {
 
   const drawCorner = (ox, oy) => {
     rects += `<rect x="${ox}" y="${oy}" width="7" height="7" fill="#0f172a" rx="1.2"/>`;
-    rects += `<rect x="${ox+1}" y="${oy+1}" width="5" height="5" fill="#ffffff" rx="0.8"/>`;
-    rects += `<rect x="${ox+2}" y="${oy+2}" width="3" height="3" fill="#0f172a" rx="0.5"/>`;
+    rects += `<rect x="${ox + 1}" y="${oy + 1}" width="5" height="5" fill="#ffffff" rx="0.8"/>`;
+    rects += `<rect x="${ox + 2}" y="${oy + 2}" width="3" height="3" fill="#0f172a" rx="0.5"/>`;
   };
   drawCorner(0, 0);
   drawCorner(14, 0);

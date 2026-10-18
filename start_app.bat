@@ -21,8 +21,10 @@ echo.
 echo ========================================================
 echo  Backend API : http://localhost:8000
 echo  Swagger UI  : http://localhost:8000/docs
-echo  Frontend Web: http://localhost:3000
+echo  Frontend PC : http://localhost:3000
+echo  WiFi Mobile : http://192.168.2.26:3000
 echo ========================================================
+
 echo  Nhan Ctrl + C de dung may chu Frontend.
 echo.
 

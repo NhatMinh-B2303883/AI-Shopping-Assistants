@@ -35,8 +35,10 @@ Write-Host ""
 Write-Host "========================================================" -ForegroundColor Green
 Write-Host "  Backend API : http://localhost:8000" -ForegroundColor White
 Write-Host "  Swagger UI  : http://localhost:8000/docs" -ForegroundColor White
-Write-Host "  Frontend Web: http://localhost:3000" -ForegroundColor White
+Write-Host "  Frontend PC : http://localhost:3000" -ForegroundColor White
+Write-Host "  WiFi Mobile : http://192.168.2.26:3000" -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Green
+
 Write-Host "  Nhan Ctrl + C de dung may chu Frontend." -ForegroundColor Gray
 Write-Host ""
 
