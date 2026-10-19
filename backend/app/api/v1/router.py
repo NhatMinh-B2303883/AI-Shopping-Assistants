@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, categories, products, search, user_activity
+from app.api.v1.endpoints import auth, camera, categories, products, search, user_activity
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
@@ -8,3 +8,5 @@ api_router.include_router(categories.router, prefix="/categories", tags=["catego
 api_router.include_router(products.router, prefix="/products", tags=["products"])
 api_router.include_router(user_activity.router, prefix="/users", tags=["user activity"])
 api_router.include_router(search.router, prefix="/search", tags=["AI search"])
+api_router.include_router(camera.router, prefix="/camera", tags=["camera sync"])
+

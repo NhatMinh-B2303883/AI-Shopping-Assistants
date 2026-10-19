@@ -28,13 +28,16 @@ def create_application() -> FastAPI:
             name="catalog-images-web",
         )
 
+    cors_origins = settings.cors_origins_list
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins_list,
+        allow_origins=cors_origins,
+        allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.\d+\.\d+\.\d+)(:\d+)?$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
     app.include_router(api_router, prefix=settings.api_v1_prefix)
 
     @app.get("/health", tags=["health"])

@@ -14,9 +14,17 @@ import io
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-import torch
-from PIL import Image
-from transformers import AutoProcessor, AutoModel
+try:
+    import torch
+    from PIL import Image
+    from transformers import AutoProcessor, AutoModel
+    TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    Image = None
+    AutoProcessor = None
+    AutoModel = None
+    TORCH_AVAILABLE = False
 
 MODEL_ID = "google/siglip2-base-patch16-256"
 EMBEDDING_DIM = 768
@@ -25,13 +33,15 @@ EMBEDDING_DIM = 768
 @lru_cache(maxsize=1)
 def _load_model() -> tuple:
     """Load SigLIP 2 model and processor (cached — loaded only once)."""
+    if not TORCH_AVAILABLE:
+        raise RuntimeError("PyTorch (torch) or Transformers is not installed in the container.")
     processor = AutoProcessor.from_pretrained(MODEL_ID)
     model = AutoModel.from_pretrained(MODEL_ID)
     model.eval()
     return processor, model
 
 
-def _normalize(tensor: torch.Tensor) -> torch.Tensor:
+def _normalize(tensor) -> any:
     """L2-normalize along the last dimension."""
     return tensor / tensor.norm(dim=-1, keepdim=True)
 
