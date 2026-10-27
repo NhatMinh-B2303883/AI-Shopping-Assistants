@@ -15,16 +15,27 @@ class SearchResultItem(BaseModel):
 
     product_id: UUID
     name: str
-    description: str | None
-    gender: str | None
-    color: str | None
-    price: Decimal
-    category_name: str | None
-    primary_image_url: str | None
+    description: str | None = None
+    gender: str | None = None
+    color: str | None = None
+    price: Decimal | None = None
+    category_name: str | None = None
+    primary_image_url: str | None = None
 
     # Cosine similarity score in [0, 1].
     # Higher = more similar to the query.
     score: float = Field(ge=0.0, le=1.0)
+
+
+class TextSearchResponse(BaseModel):
+    """Response envelope for GET /api/v1/search/text."""
+
+    query_type: str = "text"
+    query: str
+    inferred_category: str | None = None
+    inferred_color: str | None = None
+    results: list[SearchResultItem]
+    top_k: int
 
 
 class ImageSearchResponse(BaseModel):

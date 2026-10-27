@@ -20,8 +20,11 @@ Design constraints:
 
 from __future__ import annotations
 
+from decimal import Decimal
+from functools import lru_cache
 import time
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import select, text
@@ -30,7 +33,12 @@ from sqlalchemy.orm import Session
 from app.api.deps import DBSession
 from app.models.product import Product, ProductEmbedding, ProductImage
 from app.models.category import Category
-from app.schemas.search import ImageSearchResponse, MultimodalSearchResponse, SearchResultItem
+from app.schemas.search import (
+    ImageSearchResponse,
+    MultimodalSearchResponse,
+    SearchResultItem,
+    TextSearchResponse,
+)
 from app.service import ai
 
 router = APIRouter()
@@ -116,6 +124,69 @@ def _vector_search(
 # Endpoints
 # ---------------------------------------------------------------------------
 
+@lru_cache(maxsize=1)
+def _get_siglip2_encoder():
+    from ai.embedding.siglip2_encoder import Siglip2Encoder
+    return Siglip2Encoder()
+
+
+@router.get(
+    "/text",
+    response_model=TextSearchResponse,
+    summary="Semantic Text Search",
+    description="Perform hybrid semantic text search using SigLIP 2 embeddings and pgvector.",
+)
+def text_semantic_search(
+    db: DBSession,
+    q: str = Query(min_length=1, max_length=255, description="Natural language search query"),
+    top_k: int = Query(default=10, ge=1, le=50, description="Number of results to return"),
+    category_id: UUID | None = Query(default=None, description="Optional category filter"),
+    gender: str | None = Query(default=None, description="Optional gender filter"),
+    min_price: Decimal | None = Query(default=None, ge=0, description="Minimum price filter"),
+    max_price: Decimal | None = Query(default=None, ge=0, description="Maximum price filter"),
+    min_similarity: float | None = Query(default=None, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold"),
+) -> TextSearchResponse:
+    from ai.search.semantic_search import normalize_search_query, semantic_search_products
+
+    query_info = normalize_search_query(q)
+    encoder = _get_siglip2_encoder()
+
+    raw_results = semantic_search_products(
+        db=db,
+        encoder=encoder,
+        query=q,
+        limit=top_k,
+        category_id=category_id,
+        gender=gender,
+        min_price=min_price,
+        max_price=max_price,
+        min_similarity=min_similarity,
+    )
+
+    results = [
+        SearchResultItem(
+            product_id=UUID(r["product_id"]),
+            name=r["name"],
+            description=None,
+            gender=r["gender"],
+            color=r["color"],
+            price=Decimal(r["price"]) if r["price"] is not None else None,
+            category_name=r["category"],
+            primary_image_url=r["image_url"],
+            score=max(0.0, min(1.0, float(r["similarity"]))),
+        )
+        for r in raw_results
+    ]
+
+    return TextSearchResponse(
+        query=q,
+        inferred_category=query_info.get("category"),
+        inferred_color=query_info.get("color"),
+        results=results,
+        top_k=top_k,
+    )
+
+
 @router.post(
     "/image",
     response_model=ImageSearchResponse,
@@ -129,14 +200,44 @@ async def image_search(
     db: DBSession,
     image: Annotated[UploadFile, File(description="Query image (jpeg / png / webp, max 10 MB)")],
     top_k: int = Query(default=10, ge=1, le=50, description="Number of results to return"),
-    model_name: str = Query(default=_DEFAULT_MODEL, description="Embedding model to query against"),
+    category_id: UUID | None = Query(default=None, description="Optional category filter"),
+    gender: str | None = Query(default=None, description="Optional gender filter"),
+    min_price: Decimal | None = Query(default=None, ge=0, description="Minimum price filter"),
+    max_price: Decimal | None = Query(default=None, ge=0, description="Maximum price filter"),
+    min_similarity: float | None = Query(default=None, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold"),
 ) -> ImageSearchResponse:
     _validate_image(image)
     image_bytes = await _read_image(image)
 
-    query_vector = ai.embed_image_bytes(image_bytes)
+    from ai.search.image_search import image_search_products
 
-    results = _vector_search(db, query_vector, top_k, model_name)
+    encoder = _get_siglip2_encoder()
+    raw_results = image_search_products(
+        db=db,
+        encoder=encoder,
+        image_bytes=image_bytes,
+        limit=top_k,
+        category_id=category_id,
+        gender=gender,
+        min_price=min_price,
+        max_price=max_price,
+        min_similarity=min_similarity,
+    )
+
+    results = [
+        SearchResultItem(
+            product_id=UUID(r["product_id"]),
+            name=r["name"],
+            description=None,
+            gender=r["gender"],
+            color=r["color"],
+            price=Decimal(r["price"]) if r["price"] is not None else None,
+            category_name=r["category"],
+            primary_image_url=r["image_url"],
+            score=max(0.0, min(1.0, float(r["similarity"]))),
+        )
+        for r in raw_results
+    ]
 
     return ImageSearchResponse(results=results, top_k=top_k)
 
