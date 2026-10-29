@@ -149,8 +149,8 @@
           </svg>
           Tìm bằng ảnh tương đồng
         </button>
-        <button class="chip" onclick="filterCategory('ao')">Áo Excool</button>
-        <button class="chip" onclick="filterCategory('giay')">Sneaker da</button>
+        <button class="chip" onclick="filterCategory('ao')">Quần áo (Clothing)</button>
+        <button class="chip" onclick="filterCategory('giay')">Giày dép (Shoes)</button>
       </div>
 
       <!-- Trust highlights -->
@@ -185,13 +185,13 @@
         <div class="catalog-left">
           <div class="catalog-pills">
             <button class="pill-btn active" data-cat-pill="all" onclick="filterCategory('all')">Tất cả (<span
-                id="count-all">23</span>)</button>
-            <button class="pill-btn" data-cat-pill="ao" onclick="filterCategory('ao')">Áo (<span
-                id="count-ao">12</span>)</button>
-            <button class="pill-btn" data-cat-pill="giay" onclick="filterCategory('giay')">Giày (<span
-                id="count-giay">11</span>)</button>
+                id="count-all">992</span>)</button>
+            <button class="pill-btn" data-cat-pill="ao" onclick="filterCategory('ao')">Quần áo (<span
+                id="count-ao">558</span>)</button>
+            <button class="pill-btn" data-cat-pill="giay" onclick="filterCategory('giay')">Giày dép (<span
+                id="count-giay">434</span>)</button>
           </div>
-          <span class="result-count" id="result-count">23 sản phẩm</span>
+          <span class="result-count" id="result-count">992 sản phẩm</span>
         </div>
 
         <div class="catalog-right">
@@ -421,15 +421,21 @@
             </div>
             <div class="session-qr-meta">
               <div class="session-id-display" id="session-id-display">ID: —</div>
+              <div class="wifi-ip-setting" style="margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; color: #94a3b8;">
+                <span>IP Wi-Fi:</span>
+                <input type="text" id="wifi-ip-input" style="width: 125px; padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.78rem; font-family: monospace; text-align: center;" value="10.13.145.198" onchange="updateLanIp(this.value)">
+                <button type="button" class="btn btn-sm btn-ghost" style="padding: 2px 7px; font-size: 0.75rem;" onclick="updateLanIp(document.getElementById('wifi-ip-input').value)">Lưu</button>
+              </div>
             </div>
           </div>
 
-
-          <div class="phone-link-fallback" style="margin-top:12px;">
-            <span>Hoặc</span>
-            <button class="btn btn-sm btn-ghost" onclick="openMobileCameraLocal()">
-              Mở trang camera ngay trên thiết bị này
+          <div class="phone-link-fallback" style="margin-top:12px; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+            <button class="btn btn-sm btn-outline" onclick="copyMobileUrl()" style="font-size: 0.8rem; width: 100%; max-width: 280px;">
+              📋 Sao chép link mở trên điện thoại
             </button>
+            <div style="font-size: 0.75rem; color: #94a3b8;">
+              Hoặc <button class="btn btn-sm btn-ghost" onclick="openMobileCameraLocal()" style="font-size: 0.75rem; text-decoration: underline; padding: 0;">mở trực tiếp camera trên máy tính</button>
+            </div>
           </div>
         </div>
 
@@ -728,7 +734,8 @@
   <!-- TOAST NOTIFICATION STACK -->
   <div class="toasts" id="toast-box"></div>
 
-  <!-- APPLICATION SCRIPT -->
+  <!-- APPLICATION SCRIPTS -->
+  <script src="qrcode.min.js"></script>
   <script src="app.js"></script>
 </body>
 

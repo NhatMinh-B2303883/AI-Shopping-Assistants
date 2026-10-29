@@ -41,8 +41,16 @@ def _load_model() -> tuple:
     return processor, model
 
 
-def _normalize(tensor) -> any:
-    """L2-normalize along the last dimension."""
+def _normalize(output) -> any:
+    """L2-normalize along the last dimension, handling ModelOutput or Tensor."""
+    if isinstance(output, torch.Tensor):
+        tensor = output
+    elif getattr(output, "pooler_output", None) is not None:
+        tensor = output.pooler_output
+    elif isinstance(output, (tuple, list)):
+        tensor = [item for item in output if isinstance(item, torch.Tensor)][-1]
+    else:
+        raise TypeError(f"Unsupported model feature output type: {type(output)!r}")
     return tensor / tensor.norm(dim=-1, keepdim=True)
 
 

@@ -156,6 +156,26 @@ async function loadCategories() {
     const data = await res.json();
     appState.categories = data;
     appState.categoryById = Object.fromEntries(data.map(c => [c.id, c]));
+
+    // Cập nhật số lượng sản phẩm thực tế theo danh mục chính từ backend
+    const rootClothing = data.find(c => c.name.toLowerCase() === "clothing" && !c.parent_id);
+    const rootShoes = data.find(c => c.name.toLowerCase() === "shoes" && !c.parent_id);
+
+    const [clothingRes, shoesRes] = await Promise.allSettled([
+      rootClothing ? fetch(`${CONFIG.API_V1_URL}/products?category_id=${rootClothing.id}&limit=1`) : null,
+      rootShoes ? fetch(`${CONFIG.API_V1_URL}/products?category_id=${rootShoes.id}&limit=1`) : null
+    ]);
+
+    if (clothingRes.status === "fulfilled" && clothingRes.value && clothingRes.value.ok) {
+      const cData = await clothingRes.value.json();
+      appState.clothingTotal = cData.total;
+      if ($("count-ao")) $("count-ao").textContent = cData.total;
+    }
+    if (shoesRes.status === "fulfilled" && shoesRes.value && shoesRes.value.ok) {
+      const sData = await shoesRes.value.json();
+      appState.shoesTotal = sData.total;
+      if ($("count-giay")) $("count-giay").textContent = sData.total;
+    }
   } catch (err) {
     console.warn("Chưa kết nối được API categories:", err.message);
   }
@@ -305,6 +325,10 @@ async function loadProducts(resetOffset = false) {
     appState.total = data.total || 0;
     appState.limit = data.limit || CONFIG.DEFAULT_PAGE_SIZE;
     appState.offset = data.offset || 0;
+
+    if (!appState.categoryId && !appState.q && !appState.gender && !appState.color && appState.minPrice == null && appState.maxPrice == null) {
+      if ($("count-all")) $("count-all").textContent = data.total || 992;
+    }
 
     renderCatalog();
     renderPagination();
@@ -599,12 +623,14 @@ function filterCategory(tab) {
   if (tab === "all") {
     appState.categoryId = null;
   } else if (tab === "ao") {
-    // Tìm UUID danh mục áo (Shoes vs Clothing hoặc T-Shirt, Jacket...)
-    const found = appState.categories.find(c => /áo|shirt|hoodie|jacket|clothing|apparel/i.test(c.name));
+    // Ưu tiên root category "Clothing", nếu không có thì tìm theo từ khóa
+    const found = appState.categories.find(c => c.name.toLowerCase() === "clothing" && !c.parent_id)
+      || appState.categories.find(c => /áo|shirt|hoodie|jacket|clothing|apparel/i.test(c.name));
     appState.categoryId = found ? found.id : null;
   } else if (tab === "giay") {
-    // Tìm UUID danh mục giày (Shoes, Sneakers...)
-    const found = appState.categories.find(c => /giày|giay|shoe|sneaker/i.test(c.name));
+    // Ưu tiên root category "Shoes", nếu không có thì tìm theo từ khóa
+    const found = appState.categories.find(c => c.name.toLowerCase() === "shoes" && !c.parent_id)
+      || appState.categories.find(c => /giày|giay|shoe|sneaker/i.test(c.name));
     appState.categoryId = found ? found.id : null;
   }
 
@@ -1499,7 +1525,7 @@ function getLanIp() {
   if (saved && saved.trim()) return saved.trim();
   const cur = window.location.hostname;
   if (cur && cur !== "localhost" && cur !== "127.0.0.1") return cur;
-  return "192.168.2.26"; // IP Wi-Fi máy tính hiện tại
+  return "10.13.145.198"; // IP Wi-Fi máy tính hiện tại
 }
 
 function updateLanIp(val) {
@@ -1514,7 +1540,8 @@ function copyMobileUrl() {
   const lanIp = getLanIp();
   const port = window.location.port ? `:${window.location.port}` : ":3000";
   const path = window.location.pathname.replace("index.html", "");
-  const url = `http://${lanIp}${port}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
+  const backendParam = encodeURIComponent(`http://${lanIp}:8000`);
+  const url = `http://${lanIp}${port}${path}mobile-camera.html?session=${phoneSessionId}&backend=${backendParam}&v=3`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => {
@@ -1543,8 +1570,8 @@ function startPhoneSession() {
   const port = window.location.port ? `:${window.location.port}` : ":3000";
   const mobileHost = `http://${lanIp}${port}`;
   const path = window.location.pathname.replace("index.html", "");
-  const mobileUrl = `${mobileHost}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
-
+  const backendParam = encodeURIComponent(`http://${lanIp}:8000`);
+  const mobileUrl = `${mobileHost}${path}mobile-camera.html?session=${phoneSessionId}&backend=${backendParam}&v=3`;
 
   const previewEl = $("mobile-url-preview");
   if (previewEl) previewEl.textContent = mobileUrl;
@@ -1555,11 +1582,11 @@ function startPhoneSession() {
     if (window.QRCode) {
       new QRCode(renderEl, {
         text: mobileUrl,
-        width: 140,
-        height: 140,
-        colorDark: "#000000",
+        width: 160,
+        height: 160,
+        colorDark: "#0f172a",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
+        correctLevel: QRCode.CorrectLevel.M
       });
     } else {
       renderEl.innerHTML = generateCleanQrSvg(mobileUrl);

@@ -631,17 +631,23 @@
         timestamp: Date.now()
       };
 
+      let uploadSuccess = false;
+      const curHost = window.location.hostname || "localhost";
+      const backendBase = urlParams.get("backend") || `http://${curHost}:8000`;
+      const uploadUrl = `${backendBase}/api/v1/camera/upload/${sessionId}`;
+
       // 1. Gửi qua Backend HTTP Relay để PC nhận được qua mạng LAN Wi-Fi
       try {
-        const curHost = window.location.hostname || "localhost";
-        const backendBase = urlParams.get("backend") || `http://${curHost}:8000`;
-        const uploadUrl = `${backendBase}/api/v1/camera/upload/${sessionId}`;
-
-        await fetch(uploadUrl, {
+        const resp = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: capturedDataUrl, category: detectedCategory })
         });
+        if (resp.ok) {
+          uploadSuccess = true;
+        } else {
+          console.warn("Backend relay trả về status:", resp.status);
+        }
       } catch (err) {
         console.warn("Lỗi gửi qua backend relay:", err);
       }
@@ -650,6 +656,9 @@
       try {
         const bc = new BroadcastChannel("es_camera_sync");
         bc.postMessage(payload);
+        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+          uploadSuccess = true;
+        }
       } catch (e) { }
 
       // 3. LocalStorage
@@ -657,6 +666,15 @@
         localStorage.setItem("es_mobile_upload_" + sessionId, JSON.stringify(payload));
         localStorage.setItem("es_mobile_latest_event", JSON.stringify(payload));
       } catch (e) { }
+
+      if (!uploadSuccess) {
+        alert("⚠️ Không thể kết nối tới máy tính tại:\n" + uploadUrl + "\n\nVui lòng kiểm tra:\n1. Điện thoại và máy tính có đang kết nối CÙNG 1 mạng Wi-Fi không.\n2. Tường lửa Windows Defender trên máy tính có đang chặn cổng 8000 không.");
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = `Thử gửi lại`;
+        }
+        return;
+      }
 
       // Màn hình thành công
       document.getElementById("review-overlay").style.display = "none";
