@@ -49,19 +49,36 @@ _DEFAULT_MODEL = ai.MODEL_ID
 
 
 def _validate_image(upload: UploadFile) -> None:
-    if upload.content_type not in _ALLOWED_CONTENT_TYPES:
+    # Normalise: browsers sometimes send 'image/jpg' or omit the type entirely
+    ct = (upload.content_type or "").split(";")[0].strip().lower()
+    if ct not in _ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported image type '{upload.content_type}'. Accepted: jpeg, png, webp.",
+            detail=f"Unsupported image type '{ct}'. Accepted: jpeg, png, webp.",
         )
 
 
 async def _read_image(upload: UploadFile) -> bytes:
     image_bytes = await upload.read()
+    if len(image_bytes) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Uploaded file is empty (0 bytes).",
+        )
     if len(image_bytes) > _MAX_IMAGE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="Image exceeds the 10 MB size limit.",
+        )
+    # Validate that the bytes are actually a decodable image
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        _PILImage.open(_io.BytesIO(image_bytes)).verify()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File content is not a valid image (could not be decoded).",
         )
     return image_bytes
 
