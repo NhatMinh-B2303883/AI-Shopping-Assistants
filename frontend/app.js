@@ -454,7 +454,7 @@ function renderAiResults() {
   if (items.length === 0) {
     grid.innerHTML = "";
     $("empty-title").textContent = "Không tìm thấy sản phẩm tương đồng";
-    $("empty-desc").textContent = "Thử tải lên góc ảnh khác hoặc điều chỉnh mô tả phong cách.";
+    $("empty-desc").textContent = "Không có sản phẩm nào đạt độ tương đồng từ 70% trở lên. Vui lòng thử lại với ảnh rõ nét hơn, chụp cận cảnh trang phục hoặc sản phẩm thuộc danh mục cửa hàng.";
     return;
   }
 
@@ -808,8 +808,7 @@ function handleValidatedAiFile(file) {
     return;
   }
   if (file.size > CONFIG.MAX_UPLOAD_BYTES) {
-    showToast("⚠️ Kích thước ảnh vượt quá giới hạn 10MB.");
-    return;
+    showToast("⚠️ Kích thước ảnh vượt quá 10MB (sẽ bị máy chủ từ chối với mã lỗi HTTP 413).");
   }
 
   appState.aiSelectedFile = file;
@@ -869,8 +868,8 @@ async function executeAiSearch() {
       formData.append("text_query", textQuery);
       url = `${CONFIG.API_V1_URL}/search/multimodal?top_k=12&image_weight=${appState.aiWeight}`;
     } else {
-      // Mục 3.1: POST /api/v1/search/image?top_k=10
-      url = `${CONFIG.API_V1_URL}/search/image?top_k=12`;
+      // Mục 3.1: POST /api/v1/search/image?top_k=12&min_similarity=0.70 (ngưỡng 70%)
+      url = `${CONFIG.API_V1_URL}/search/image?top_k=12&min_similarity=0.70`;
     }
 
     const response = await fetch(url, {
@@ -879,8 +878,18 @@ async function executeAiSearch() {
     });
 
     if (!response.ok) {
+      if (response.status === 413) {
+        throw new Error("HTTP 413: Dung lượng ảnh vượt quá giới hạn 10MB cho phép của máy chủ.");
+      }
+      if (response.status === 415) {
+        throw new Error("HTTP 415: Định dạng tệp ảnh không được máy chủ hỗ trợ.");
+      }
+      if (response.status === 400) {
+        const errJson = await response.json().catch(() => null);
+        throw new Error(errJson?.detail || "HTTP 400: Tệp ảnh tải lên bị rỗng hoặc không hợp lệ.");
+      }
       const errJson = await response.json().catch(() => null);
-      throw new Error(errJson?.detail || `Lỗi AI Search: ${response.status}`);
+      throw new Error(errJson?.detail || `Lỗi AI Search: HTTP ${response.status}`);
     }
 
     const data = await response.json();

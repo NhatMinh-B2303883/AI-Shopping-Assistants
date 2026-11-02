@@ -38,8 +38,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--min-similarity",
         type=float,
-        default=None,
-        help="Optional cosine-similarity threshold.",
+        default=0.70,
+        help="Cosine-similarity threshold (default: 0.70 for 70%).",
     )
     args = parser.parse_args()
     if not 1 <= args.limit <= 100:
@@ -97,9 +97,12 @@ def main() -> None:
             print(f"Image URL: {result['image_url']}")
 
         if not results:
-            print("\n⚠ No results found. Possible causes:")
-            print("  - No image embeddings have been generated yet.")
-            print("  - Run: docker compose exec backend python scripts/generate_embeddings.py")
+            threshold_pct = (args.min_similarity or 0.70) * 100
+            print(f"\n⚠ No products met the similarity threshold (>= {threshold_pct:.1f}%).")
+            print("  Possible causes:")
+            print("  - The query image is out-of-domain (e.g. non-fashion, unsupported category).")
+            print("  - Image quality is too low or background dominated.")
+            print("  - Try setting a lower threshold: --min-similarity 0.50")
     finally:
         db.close()
 

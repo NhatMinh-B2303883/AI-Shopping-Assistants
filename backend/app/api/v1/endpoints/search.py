@@ -26,7 +26,9 @@ import time
 from typing import Annotated
 from uuid import UUID
 
+import io
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile, status
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
@@ -57,12 +59,45 @@ def _validate_image(upload: UploadFile) -> None:
 
 
 async def _read_image(upload: UploadFile) -> bytes:
-    image_bytes = await upload.read()
-    if len(image_bytes) > _MAX_IMAGE_BYTES:
+    if upload.size is not None and upload.size > _MAX_IMAGE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="Image exceeds the 10 MB size limit.",
         )
+
+    content = bytearray()
+    chunk_size = 1024 * 1024
+    while chunk := await upload.read(chunk_size):
+        content.extend(chunk)
+        if len(content) > _MAX_IMAGE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="Image exceeds the 10 MB size limit.",
+            )
+
+    image_bytes = bytes(content)
+    if not image_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty (0 bytes).",
+        )
+
+    try:
+        with Image.open(io.BytesIO(image_bytes)) as img:
+            img.verify()
+            if img.format not in ("JPEG", "PNG", "WEBP"):
+                raise HTTPException(
+                    status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                    detail=f"Unsupported image format '{img.format}'. Accepted: JPEG, PNG, WEBP.",
+                )
+    except HTTPException:
+        raise
+    except (UnidentifiedImageError, OSError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is not a valid or readable image.",
+        )
+
     return image_bytes
 
 
@@ -204,7 +239,7 @@ async def image_search(
     gender: str | None = Query(default=None, description="Optional gender filter"),
     min_price: Decimal | None = Query(default=None, ge=0, description="Minimum price filter"),
     max_price: Decimal | None = Query(default=None, ge=0, description="Maximum price filter"),
-    min_similarity: float | None = Query(default=None, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold"),
+    min_similarity: float | None = Query(default=0.70, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold (default: 0.70 for 70%)"),
 ) -> ImageSearchResponse:
     _validate_image(image)
     image_bytes = await _read_image(image)
@@ -259,14 +294,46 @@ async def multimodal_search(
     text_query: Annotated[str, Form(min_length=1, max_length=512, description="Text refinement, e.g. 'white color, for running'")],
     top_k: int = Query(default=10, ge=1, le=50, description="Number of results to return"),
     image_weight: float = Query(default=0.5, ge=0.0, le=1.0, description="Weight of the image embedding (0=text only, 1=image only)"),
-    model_name: str = Query(default=_DEFAULT_MODEL, description="Embedding model to query against"),
+    category_id: UUID | None = Query(default=None, description="Optional category filter"),
+    gender: str | None = Query(default=None, description="Optional gender filter"),
+    min_price: Decimal | None = Query(default=None, ge=0, description="Minimum price filter"),
+    max_price: Decimal | None = Query(default=None, ge=0, description="Maximum price filter"),
+    min_similarity: float | None = Query(default=0.70, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold (default: 0.70 for 70%)"),
 ) -> MultimodalSearchResponse:
     _validate_image(image)
     image_bytes = await _read_image(image)
 
-    query_vector = ai.embed_multimodal(image_bytes, text_query, alpha=image_weight)
+    from ai.search.multimodal_search import multimodal_search_products
 
-    results = _vector_search(db, query_vector, top_k, model_name)
+    encoder = _get_siglip2_encoder()
+    raw_results = multimodal_search_products(
+        db=db,
+        encoder=encoder,
+        image_bytes=image_bytes,
+        text_query=text_query,
+        limit=top_k,
+        image_weight=image_weight,
+        category_id=category_id,
+        gender=gender,
+        min_price=min_price,
+        max_price=max_price,
+        min_similarity=min_similarity,
+    )
+
+    results = [
+        SearchResultItem(
+            product_id=UUID(r["product_id"]),
+            name=r["name"],
+            description=None,
+            gender=r["gender"],
+            color=r["color"],
+            price=Decimal(r["price"]) if r["price"] is not None else None,
+            category_name=r["category"],
+            primary_image_url=r["image_url"],
+            score=max(0.0, min(1.0, float(r["similarity"]))),
+        )
+        for r in raw_results
+    ]
 
     return MultimodalSearchResponse(
         text_query=text_query,

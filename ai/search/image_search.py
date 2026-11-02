@@ -21,6 +21,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from ai.embedding.siglip2_encoder import DEFAULT_MODEL_NAME, Siglip2Encoder
+
+DEFAULT_MIN_SIMILARITY: float = 0.70  # Ngưỡng tương đồng mặc định 70%
 from app.models.category import Category
 from app.models.product import Product, ProductEmbedding, ProductImage
 
@@ -35,7 +37,7 @@ def image_search_products(
     gender: str | None = None,
     min_price: Decimal | None = None,
     max_price: Decimal | None = None,
-    min_similarity: float | None = None,
+    min_similarity: float | None = DEFAULT_MIN_SIMILARITY,
     model_name: str = DEFAULT_MODEL_NAME,
 ) -> list[dict[str, Any]]:
     """Find visually similar products by encoding an uploaded image.
@@ -66,13 +68,20 @@ def image_search_products(
         raise ValueError("Image bytes must not be empty.")
     if not 1 <= limit <= 100:
         raise ValueError("limit must be between 1 and 100.")
-    if min_similarity is not None and not -1.0 <= min_similarity <= 1.0:
+    if min_similarity is None:
+        min_similarity = DEFAULT_MIN_SIMILARITY
+
+    if not -1.0 <= min_similarity <= 1.0:
         raise ValueError("min_similarity must be between -1.0 and 1.0.")
     if min_price is not None and max_price is not None and min_price > max_price:
         raise ValueError("min_price cannot be greater than max_price.")
 
     # Encode query image using SigLIP 2 Vision Encoder.
-    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    try:
+        pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    except Exception as exc:
+        raise ValueError(f"Cannot decode query image: {exc}") from exc
+
     query_vector = encoder.encode_images([pil_image])[0]
     pil_image.close()
 
