@@ -297,17 +297,73 @@ async function loadProducts(resetOffset = false) {
     appState.offset = 0;
   }
 
-  // Nếu đang xem kết quả tìm kiếm AI thì hiển thị trực tiếp kết quả AI
+  // 1. TÌM KIẾM NGỮ NGHĨA AI (SigLIP 2 Semantic Text Search)
+  // Khi người dùng gõ từ khóa vào ô tìm kiếm -> gọi trực tiếp API AI
+  if (appState.q && appState.q.trim()) {
+    setLoadingGrid(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("q", appState.q.trim());
+      params.set("top_k", appState.limit || 24);
+      if (appState.categoryId) params.set("category_id", appState.categoryId);
+      if (appState.gender) params.set("gender", appState.gender);
+      if (appState.minPrice != null) params.set("min_price", appState.minPrice);
+      if (appState.maxPrice != null) params.set("max_price", appState.maxPrice);
+
+      const res = await fetch(`${CONFIG.API_V1_URL}/search/text?${params.toString()}`);
+      if (!res.ok) throw new Error(`Lỗi Semantic Search: ${res.status}`);
+
+      const data = await res.json();
+      appState.activeMode = "ai";
+      appState.aiSearchMode = "semantic";
+      appState.aiResults = data.results || [];
+      appState.aiMeta = {
+        query: data.query,
+        inferred_category: data.inferred_category,
+        inferred_color: data.inferred_color,
+        total: (data.results || []).length
+      };
+
+      // Cập nhật Banner thông báo tìm kiếm AI
+      const banner = $("ai-active-banner");
+      const bannerBadge = $("ai-banner-badge");
+      const bannerText = $("ai-banner-text");
+      if (banner) {
+        banner.classList.remove("hidden");
+        if (bannerBadge) bannerBadge.textContent = "Semantic AI (SigLIP 2)";
+        let intentParts = [];
+        if (data.inferred_category) intentParts.push(`danh mục <strong>${data.inferred_category}</strong>`);
+        if (data.inferred_color) intentParts.push(`màu <strong>${data.inferred_color}</strong>`);
+        const intentStr = intentParts.length ? ` · Nhận diện: ${intentParts.join(", ")}` : "";
+        if (bannerText) {
+          bannerText.innerHTML = `Tìm kiếm ngữ nghĩa: <strong>"${data.query}"</strong> (${(data.results || []).length} sản phẩm)${intentStr}`;
+        }
+      }
+
+      renderAiResults();
+      return;
+    } catch (err) {
+      console.warn("Lỗi Semantic Search API, fallback về catalog:", err);
+      // Fallback xuống danh mục chuẩn nếu API gặp sự cố
+    } finally {
+      setLoadingGrid(false);
+    }
+  }
+
+  // 2. Nếu đang xem kết quả tìm kiếm AI (Image / Multimodal) và không có từ khóa mới
   if (appState.activeMode === "ai") {
     renderAiResults();
     return;
   }
 
+  // Ẩn banner AI nếu đang ở chế độ xem catalog thông thường
+  const banner = $("ai-active-banner");
+  if (banner && appState.activeMode !== "ai") banner.classList.add("hidden");
+
   setLoadingGrid(true);
 
   try {
     const params = new URLSearchParams();
-    if (appState.q.trim()) params.set("q", appState.q.trim());
     if (appState.categoryId) params.set("category_id", appState.categoryId);
     if (appState.gender) params.set("gender", appState.gender);
     if (appState.color) params.set("color", appState.color);
@@ -958,6 +1014,9 @@ function clearAiSearch(reFetch = true) {
   if (banner) banner.classList.add("hidden");
 
   if (reFetch) {
+    appState.q = "";
+    if ($("main-search-input")) $("main-search-input").value = "";
+    updateFilterIndicator();
     loadProducts(true);
     showToast("Đã quay lại danh mục sản phẩm chuẩn.");
   }
