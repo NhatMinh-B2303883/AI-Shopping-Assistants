@@ -17,12 +17,15 @@ echo.
 echo [3/3] Mo trinh duyet va khoi chay Frontend tai http://localhost:3000 ...
 start http://localhost:3000
 
+for /f "tokens=*" %%i in ('powershell -NoProfile -Command "(Test-Connection -ComputerName (hostname) -Count 1).IPV4Address.IPAddressToString"') do set WIFI_IP=%%i
+if "%WIFI_IP%"=="" set WIFI_IP=127.0.0.1
+
 echo.
 echo ========================================================
 echo  Backend API : http://localhost:8000
 echo  Swagger UI  : http://localhost:8000/docs
 echo  Frontend PC : http://localhost:3000
-echo  WiFi Mobile : http://192.168.2.26:3000
+echo  WiFi Mobile : http://%WIFI_IP%:3000
 echo ========================================================
 
 echo  Nhan Ctrl + C de dung may chu Frontend.

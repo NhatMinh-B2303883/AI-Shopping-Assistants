@@ -156,6 +156,26 @@ async function loadCategories() {
     const data = await res.json();
     appState.categories = data;
     appState.categoryById = Object.fromEntries(data.map(c => [c.id, c]));
+
+    // Cập nhật số lượng sản phẩm thực tế theo danh mục chính từ backend
+    const rootClothing = data.find(c => c.name.toLowerCase() === "clothing" && !c.parent_id);
+    const rootShoes = data.find(c => c.name.toLowerCase() === "shoes" && !c.parent_id);
+
+    const [clothingRes, shoesRes] = await Promise.allSettled([
+      rootClothing ? fetch(`${CONFIG.API_V1_URL}/products?category_id=${rootClothing.id}&limit=1`) : null,
+      rootShoes ? fetch(`${CONFIG.API_V1_URL}/products?category_id=${rootShoes.id}&limit=1`) : null
+    ]);
+
+    if (clothingRes.status === "fulfilled" && clothingRes.value && clothingRes.value.ok) {
+      const cData = await clothingRes.value.json();
+      appState.clothingTotal = cData.total;
+      if ($("count-ao")) $("count-ao").textContent = cData.total;
+    }
+    if (shoesRes.status === "fulfilled" && shoesRes.value && shoesRes.value.ok) {
+      const sData = await shoesRes.value.json();
+      appState.shoesTotal = sData.total;
+      if ($("count-giay")) $("count-giay").textContent = sData.total;
+    }
   } catch (err) {
     console.warn("Chưa kết nối được API categories:", err.message);
   }
@@ -306,6 +326,10 @@ async function loadProducts(resetOffset = false) {
     appState.limit = data.limit || CONFIG.DEFAULT_PAGE_SIZE;
     appState.offset = data.offset || 0;
 
+    if (!appState.categoryId && !appState.q && !appState.gender && !appState.color && appState.minPrice == null && appState.maxPrice == null) {
+      if ($("count-all")) $("count-all").textContent = data.total || 992;
+    }
+
     renderCatalog();
     renderPagination();
   } catch (err) {
@@ -354,6 +378,7 @@ function renderCatalog() {
   const grid = $("product-grid");
 
   $("result-count").textContent = `${appState.total} sản phẩm`;
+  if ($("count-all") && !appState.categoryId && !appState.q) $("count-all").textContent = appState.total;
   $("empty-state").classList.toggle("hidden", items.length > 0);
   $("pagination-wrap").classList.toggle("hidden", items.length === 0);
 
@@ -454,7 +479,7 @@ function renderAiResults() {
   if (items.length === 0) {
     grid.innerHTML = "";
     $("empty-title").textContent = "Không tìm thấy sản phẩm tương đồng";
-    $("empty-desc").textContent = "Không có sản phẩm nào đạt độ tương đồng từ 70% trở lên. Vui lòng thử lại với ảnh rõ nét hơn, chụp cận cảnh trang phục hoặc sản phẩm thuộc danh mục cửa hàng.";
+    $("empty-desc").textContent = "Thử tải lên góc ảnh khác hoặc điều chỉnh mô tả phong cách.";
     return;
   }
 
@@ -599,12 +624,14 @@ function filterCategory(tab) {
   if (tab === "all") {
     appState.categoryId = null;
   } else if (tab === "ao") {
-    // Tìm UUID danh mục áo (Shoes vs Clothing hoặc T-Shirt, Jacket...)
-    const found = appState.categories.find(c => /áo|shirt|hoodie|jacket|clothing|apparel/i.test(c.name));
+    // Ưu tiên root category "Clothing", nếu không có thì tìm theo từ khóa
+    const found = appState.categories.find(c => c.name.toLowerCase() === "clothing" && !c.parent_id)
+      || appState.categories.find(c => /áo|shirt|hoodie|jacket|clothing|apparel/i.test(c.name));
     appState.categoryId = found ? found.id : null;
   } else if (tab === "giay") {
-    // Tìm UUID danh mục giày (Shoes, Sneakers...)
-    const found = appState.categories.find(c => /giày|giay|shoe|sneaker/i.test(c.name));
+    // Ưu tiên root category "Shoes", nếu không có thì tìm theo từ khóa
+    const found = appState.categories.find(c => c.name.toLowerCase() === "shoes" && !c.parent_id)
+      || appState.categories.find(c => /giày|giay|shoe|sneaker/i.test(c.name));
     appState.categoryId = found ? found.id : null;
   }
 
@@ -808,7 +835,8 @@ function handleValidatedAiFile(file) {
     return;
   }
   if (file.size > CONFIG.MAX_UPLOAD_BYTES) {
-    showToast("⚠️ Kích thước ảnh vượt quá 10MB (sẽ bị máy chủ từ chối với mã lỗi HTTP 413).");
+    showToast("⚠️ Kích thước ảnh vượt quá giới hạn 10MB.");
+    return;
   }
 
   appState.aiSelectedFile = file;
@@ -868,8 +896,8 @@ async function executeAiSearch() {
       formData.append("text_query", textQuery);
       url = `${CONFIG.API_V1_URL}/search/multimodal?top_k=12&image_weight=${appState.aiWeight}`;
     } else {
-      // Mục 3.1: POST /api/v1/search/image?top_k=12&min_similarity=0.70 (ngưỡng 70%)
-      url = `${CONFIG.API_V1_URL}/search/image?top_k=12&min_similarity=0.70`;
+      // Mục 3.1: POST /api/v1/search/image?top_k=10
+      url = `${CONFIG.API_V1_URL}/search/image?top_k=12`;
     }
 
     const response = await fetch(url, {
@@ -878,18 +906,8 @@ async function executeAiSearch() {
     });
 
     if (!response.ok) {
-      if (response.status === 413) {
-        throw new Error("HTTP 413: Dung lượng ảnh vượt quá giới hạn 10MB cho phép của máy chủ.");
-      }
-      if (response.status === 415) {
-        throw new Error("HTTP 415: Định dạng tệp ảnh không được máy chủ hỗ trợ.");
-      }
-      if (response.status === 400) {
-        const errJson = await response.json().catch(() => null);
-        throw new Error(errJson?.detail || "HTTP 400: Tệp ảnh tải lên bị rỗng hoặc không hợp lệ.");
-      }
       const errJson = await response.json().catch(() => null);
-      throw new Error(errJson?.detail || `Lỗi AI Search: HTTP ${response.status}`);
+      throw new Error(errJson?.detail || `Lỗi AI Search: ${response.status}`);
     }
 
     const data = await response.json();
@@ -1508,7 +1526,7 @@ function getLanIp() {
   if (saved && saved.trim()) return saved.trim();
   const cur = window.location.hostname;
   if (cur && cur !== "localhost" && cur !== "127.0.0.1") return cur;
-  return "192.168.2.26"; // IP Wi-Fi máy tính hiện tại
+  return "10.13.145.198"; // IP Wi-Fi máy tính hiện tại
 }
 
 function updateLanIp(val) {
@@ -1523,7 +1541,8 @@ function copyMobileUrl() {
   const lanIp = getLanIp();
   const port = window.location.port ? `:${window.location.port}` : ":3000";
   const path = window.location.pathname.replace("index.html", "");
-  const url = `http://${lanIp}${port}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
+  const backendParam = encodeURIComponent(`http://${lanIp}:8000`);
+  const url = `http://${lanIp}${port}${path}mobile-camera.html?session=${phoneSessionId}&backend=${backendParam}&v=3`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => {
@@ -1552,8 +1571,8 @@ function startPhoneSession() {
   const port = window.location.port ? `:${window.location.port}` : ":3000";
   const mobileHost = `http://${lanIp}${port}`;
   const path = window.location.pathname.replace("index.html", "");
-  const mobileUrl = `${mobileHost}${path}mobile-camera.html?session=${phoneSessionId}&v=2`;
-
+  const backendParam = encodeURIComponent(`http://${lanIp}:8000`);
+  const mobileUrl = `${mobileHost}${path}mobile-camera.html?session=${phoneSessionId}&backend=${backendParam}&v=3`;
 
   const previewEl = $("mobile-url-preview");
   if (previewEl) previewEl.textContent = mobileUrl;
@@ -1564,11 +1583,11 @@ function startPhoneSession() {
     if (window.QRCode) {
       new QRCode(renderEl, {
         text: mobileUrl,
-        width: 140,
-        height: 140,
-        colorDark: "#000000",
+        width: 160,
+        height: 160,
+        colorDark: "#0f172a",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.L
+        correctLevel: QRCode.CorrectLevel.M
       });
     } else {
       renderEl.innerHTML = generateCleanQrSvg(mobileUrl);
