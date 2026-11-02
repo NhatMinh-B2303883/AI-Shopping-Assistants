@@ -25,6 +25,34 @@ from app.models.category import Category
 from app.models.product import Product, ProductEmbedding, ProductImage
 
 
+def _has_visual_content(image: Image.Image) -> bool:
+    """Reject near-uniform images that contain no useful visual search signal.
+
+    SigLIP can assign deceptively high cosine similarity to blank color fields.
+    Analyze a small grayscale thumbnail so this check is inexpensive and
+    consistent across JPEG/PNG/WebP compression artifacts.
+    """
+    thumbnail = image.convert("L")
+    try:
+        thumbnail.thumbnail((64, 64))
+        histogram = thumbnail.histogram()
+    finally:
+        thumbnail.close()
+
+    pixel_count = sum(histogram)
+    if not pixel_count:
+        return False
+
+    mean = sum(level * count for level, count in enumerate(histogram)) / pixel_count
+    variance = sum(
+        (level - mean) ** 2 * count for level, count in enumerate(histogram)
+    ) / pixel_count
+
+    # JPEG ringing around a flat field can add a little variance, so use a
+    # modest threshold instead of requiring every pixel to be identical.
+    return variance >= 16.0
+
+
 def image_search_products(
     db: Session,
     encoder: Siglip2Encoder,
@@ -73,6 +101,9 @@ def image_search_products(
 
     # Encode query image using SigLIP 2 Vision Encoder.
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    if not _has_visual_content(pil_image):
+        pil_image.close()
+        return []
     query_vector = encoder.encode_images([pil_image])[0]
     pil_image.close()
 

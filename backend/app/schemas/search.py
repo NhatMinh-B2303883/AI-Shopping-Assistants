@@ -44,6 +44,8 @@ class ImageSearchResponse(BaseModel):
     query_type: str = "image"
     results: list[SearchResultItem]
     top_k: int
+    # Populated when results is empty: explains why no products were found.
+    no_results_message: str | None = None
 
 
 class MultimodalSearchResponse(BaseModel):

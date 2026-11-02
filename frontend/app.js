@@ -378,6 +378,7 @@ function renderCatalog() {
   const grid = $("product-grid");
 
   $("result-count").textContent = `${appState.total} sản phẩm`;
+  if ($("count-all") && !appState.categoryId && !appState.q) $("count-all").textContent = appState.total;
   $("empty-state").classList.toggle("hidden", items.length > 0);
   $("pagination-wrap").classList.toggle("hidden", items.length === 0);
 

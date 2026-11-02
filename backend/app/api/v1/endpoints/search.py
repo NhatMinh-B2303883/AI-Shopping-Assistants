@@ -14,8 +14,11 @@ Design constraints:
 - Only product_image embeddings (embedding_type = 'image') are searched
   for Image Search and Multimodal Search.
 - Accepted image MIME types: image/jpeg, image/png, image/webp.
-- Maximum upload size is enforced by FastAPI's default request body limit
-  (can be tuned via Starlette's max_upload_size if needed).
+- Maximum upload size: 10 MB → HTTP 413.
+- Zero-byte files → HTTP 400.
+- Files with wrong magic bytes (e.g. PDF/text renamed to .jpg) → HTTP 400.
+- Low-relevance results (similarity < threshold) are filtered out; an empty
+  list is returned with a human-readable message instead of forced results.
 """
 
 from __future__ import annotations
@@ -47,9 +50,34 @@ _ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 _MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
 _DEFAULT_MODEL = ai.MODEL_ID
 
+# Cosine-similarity threshold below which image-search results are considered
+# irrelevant (e.g. a cat photo, a coffee mug, or any non-fashion object).
+# Results below this score are filtered out and an empty list is returned
+# instead of force-matching unrelated items.
+_MIN_IMAGE_SIMILARITY = 0.35
+
+# Magic-byte signatures for formats we explicitly ALLOW.
+# Key: first N bytes of the file; value: human-readable format name.
+_IMAGE_MAGIC: list[tuple[bytes, str]] = [
+    (b"\xff\xd8\xff", "JPEG"),
+    (b"\x89PNG\r\n\x1a\n", "PNG"),
+    (b"RIFF", "WebP"),   # WebP: bytes 0-3 == RIFF, bytes 8-11 == WEBP (checked below)
+]
+
+
+def _check_magic_bytes(data: bytes) -> bool:
+    """Return True only when *data* starts with a recognised image signature."""
+    if data[:3] == b"\xff\xd8\xff":
+        return True
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return True
+    # WebP container: RIFF????WEBP
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return True
+    return False
+
 
 def _validate_image(upload: UploadFile) -> None:
-    # Normalise: browsers sometimes send 'image/jpg' or omit the type entirely
     ct = (upload.content_type or "").split(";")[0].strip().lower()
     if ct not in _ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -59,26 +87,31 @@ def _validate_image(upload: UploadFile) -> None:
 
 
 async def _read_image(upload: UploadFile) -> bytes:
+    """Read and validate image bytes.
+
+    Checks (in order):
+    1. Zero-byte file          → HTTP 400
+    2. File size > 10 MB       → HTTP 413
+    3. Magic-byte mismatch     → HTTP 400  (catches disguised PDF/text files)
+    """
     image_bytes = await upload.read()
-    if len(image_bytes) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Uploaded file is empty (0 bytes).",
-        )
     if len(image_bytes) > _MAX_IMAGE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Image exceeds the 10 MB size limit.",
+            detail=(
+                f"Image size ({len(image_bytes) / 1024 / 1024:.1f} MB) exceeds "
+                "the 10 MB limit. Please upload a smaller image."
+            ),
         )
-    # Validate that the bytes are actually a decodable image
-    try:
-        from PIL import Image as _PILImage
-        import io as _io
-        _PILImage.open(_io.BytesIO(image_bytes)).verify()
-    except Exception:
+
+    # Guard 3: magic-byte check — prevents disguised non-image files (PDF, text…)
+    if not _check_magic_bytes(image_bytes):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="File content is not a valid image (could not be decoded).",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "File content does not match a supported image format (jpeg/png/webp). "
+                "Renaming a PDF or text file to .jpg is not accepted."
+            ),
         )
     return image_bytes
 
@@ -221,12 +254,28 @@ async def image_search(
     gender: str | None = Query(default=None, description="Optional gender filter"),
     min_price: Decimal | None = Query(default=None, ge=0, description="Minimum price filter"),
     max_price: Decimal | None = Query(default=None, ge=0, description="Maximum price filter"),
-    min_similarity: float | None = Query(default=None, ge=-1.0, le=1.0, description="Minimum cosine similarity threshold"),
+    min_similarity: float | None = Query(
+        default=None,
+        ge=-1.0,
+        le=1.0,
+        description=(
+            "Minimum cosine similarity threshold. "
+            f"Defaults to {_MIN_IMAGE_SIMILARITY} when not provided to suppress "
+            "irrelevant results (e.g. non-fashion objects)."
+        ),
+    ),
 ) -> ImageSearchResponse:
     _validate_image(image)
     image_bytes = await _read_image(image)
 
     from ai.search.image_search import image_search_products
+
+    # Use caller-supplied threshold or fall back to the global default so that
+    # off-category images (cats, cups, trophies …) return an empty list instead
+    # of force-matched fashion products.
+    effective_min_similarity = (
+        min_similarity if min_similarity is not None else _MIN_IMAGE_SIMILARITY
+    )
 
     encoder = _get_siglip2_encoder()
     raw_results = image_search_products(
@@ -238,7 +287,7 @@ async def image_search(
         gender=gender,
         min_price=min_price,
         max_price=max_price,
-        min_similarity=min_similarity,
+        min_similarity=effective_min_similarity,
     )
 
     results = [
@@ -256,7 +305,18 @@ async def image_search(
         for r in raw_results
     ]
 
-    return ImageSearchResponse(results=results, top_k=top_k)
+    no_results_message: str | None = None
+    if not results:
+        no_results_message = (
+            "Không tìm thấy sản phẩm phù hợp với hình ảnh này. "
+            "Hãy thử ảnh sản phẩm thời trang khác (áo, quần, giày…)."
+        )
+
+    return ImageSearchResponse(
+        results=results,
+        top_k=top_k,
+        no_results_message=no_results_message,
+    )
 
 
 @router.post(
